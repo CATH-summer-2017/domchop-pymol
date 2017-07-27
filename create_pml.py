@@ -1,6 +1,7 @@
 """
 this is supposed to create a .pml from a string of data
-need to organise the regex into a callable function, need to fimish the .pml compiler
+need to organise the regex into a callable function
+colourlist needs to be redone to match CATH colours, need to test to find possible flaws
 test from perl script: (10gs D2-78[A]+187-208[A] D79-186[A] F209-209[A])
 """
 
@@ -14,6 +15,7 @@ pdb_idRegex = re.compile(r'\w{4,5}')
 whole_domainRegex = re.compile(r'D\d+-\d+\S*')
 fragmentRegex = re.compile(r'F\d{1,10}-\d{1,10}')
 coordinatesRegex = re.compile(r'\d+-\d+')
+list_of_colours = ["Blue", "Red", "Green", "Yellow", "Pink", "Grey"]
 
 pdb_id = pdb_idRegex.findall(the_string)
 domains = whole_domainRegex.findall(the_string)
@@ -39,13 +41,19 @@ def fetch_fragments(list_of_fragments):#returns a dictionary of fragments
 
 def create_pymol(): #will compile all the data into a .pml file
     pymol_script = open('C:\\Users\\Ilya\\PycharmProjects\\pymol\\pymolscript.pml', 'w')
-    pymol_script.write("fetch " + pdb_id[0] + ", async=0\n" + "select domain1, ")
+    pymol_script.write("fetch " + pdb_id[0] + ", async=0\n")
     count = 1
     number_of_doms = len(fetch_domains(domains))
-    for coordin in fetch_domains(domains)["domain " + str(count)]:
-        if coordin == fetch_domains(domains)["domain " + str(count)][-1]:
-            pymol_script.write("resi " + coordin)
-            break
-        pymol_script.write("resi " + coordin + " + ")
-    pymol_script.write("\n")
+    for domain in range(number_of_doms):
+        pymol_script.write("select domain" + str(count) + ", ")
+        for coordin in fetch_domains(domains)["domain " + str(count)]:
+            if coordin == fetch_domains(domains)["domain " + str(count)][-1]:
+                pymol_script.write("resi " + coordin)
+                break
+            pymol_script.write("resi " + coordin + " + ")
+        count += 1
+        pymol_script.write("\n")
+    for domain in range(number_of_doms):
+        pymol_script.write("colour " + list_of_colours[domain] + (", domain") + str(domain + 1) + "\n")
+    pymol_script.write("hide all\ndeselect\nshow cartoon")
 create_pymol()
