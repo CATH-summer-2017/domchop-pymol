@@ -4,7 +4,7 @@ need to organise the regex into a callable function, need to fimish the .pml com
 test from perl script: (10gs D2-78[A]+187-208[A] D79-186[A] F209-209[A])
 """
 
-import re, sys, os
+import re
 
 the_string = '''
 10gs D2-78[A]+187-208[A] D79-186[A] F209-209[A]
@@ -41,11 +41,11 @@ def create_pymol(): #will compile all the data into a .pml file
     pymol_script = open('C:\\Users\\Ilya\\PycharmProjects\\pymol\\pymolscript.pml', 'w')
     pymol_script.write("fetch " + pdb_id[0] + ", async=0\n" + "select domain1, ")
     count = 1
+    number_of_doms = len(fetch_domains(domains))
     for coordin in fetch_domains(domains)["domain " + str(count)]:
-        pymol_script.write("resi " + coordin + " + ")
-    pymol_script.write("\nselect domain2, ")
-    for coordin in fetch_domains(domains)["domain 2"]:
+        if coordin == fetch_domains(domains)["domain " + str(count)][-1]:
+            pymol_script.write("resi " + coordin)
+            break
         pymol_script.write("resi " + coordin + " + ")
     pymol_script.write("\n")
-
 create_pymol()
