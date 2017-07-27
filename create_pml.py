@@ -1,6 +1,7 @@
 """
-this script will take a string that has the chain id and the domain coordinates and will create a pymol script out of it
-10gs D2-78[A]+187-208[A] D79-186[A] F209-209[A]
+this is supposed to create a .pml from a string of data
+need to organise the regex into a callable function, need to fimish the .pml compiler
+test from perl script: (10gs D2-78[A]+187-208[A] D79-186[A] F209-209[A])
 """
 
 import re, sys, os
@@ -36,7 +37,7 @@ def fetch_fragments(list_of_fragments):#returns a dictionary of fragments
         count += 1
     return dict_fragments
 
-def create_pymol():
+def create_pymol(): #will compile all the data into a .pml file
     pymol_script = open('C:\\Users\\Ilya\\PycharmProjects\\pymol\\pymolscript.pml', 'w')
     pymol_script.write("fetch " + pdb_id[0] + ", async=0\n" + "select domain1, ")
     count = 1
