@@ -42,12 +42,23 @@ def fetch_fragments(list_of_fragments): #returns a list of coordinates that are 
         fragment_list.append(coordinatesRegex.search(fragment).group())
     return fragment_list
 
-def pdb_parser():
-    pdb_file = open('C:\\Users\\Ilya\\PycharmProjects\\pymol\\' + pdb_id_chain, 'r')
+def pdb_parser(): #takes the info from pdb and adds it to pml
+    endlineregex = re.compile(r'\r\n')
+    pdb_file = open('C:\\Users\\Ilya\\PycharmProjects\\pymol\\' + pdb_id_whole + '.pdb', 'r')
+    the_pdb = pdb_file.read()
+    print(the_pdb)
+    endlineregex.sub('\\\r\n', the_pdb)
+    print(the_pdb)
 
 def create_pymol(): #will compile all the data into a .pml file
     pymol_script = open('C:\\Users\\Ilya\\PycharmProjects\\pymol\\' + pdb_id_chain +'_chopping' '.pml', 'w')
-    pymol_script.write("fetch " + pdb_id_chain + ", async=0\n" + "select all\ncolour White\ndeselect\n")
+    pdb_file = open('C:\\Users\\Ilya\\PycharmProjects\\pymol\\' + pdb_id_whole + '.pdb', 'r')
+    pymol_script.write('cmd.read_pdbstr("""\\' + '\n')
+    for line in pdb_file:
+        pymol_script.write(line.rstrip("\n") + "\\\n")
+    pymol_script.write('""", "' + pdb_id_chain + '")\n')
+    pymol_script.write("select all\ncolour White\ndeselect\n")
+    pymol_script.write("select the_chain, chain " + pdb_id_chain[-1] + "\ndeselect\n")
     count = 1
     number_of_doms = len(fetch_domains(domains))
     for domain in range(number_of_doms): #puts all domains in .pml
@@ -68,7 +79,10 @@ def create_pymol(): #will compile all the data into a .pml file
             break
         pymol_script.write("resi " + str(fragment) + " + ")
     pymol_script.write("\ncolour White, fragments\n")
-    pymol_script.write("hide all\ndeselect\ndelete sele\nshow cartoon\n")
+    pymol_script.write("hide all\ndeselect\ndelete sele\nshow cartoon, the_chain\n")
+    pymol_script.close()
+    pdb_file.close()
+
 
 
 
@@ -80,3 +94,4 @@ print(fragments)
 
 
 create_pymol()
+
