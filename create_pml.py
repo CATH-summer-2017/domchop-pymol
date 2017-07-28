@@ -2,9 +2,9 @@
 this is supposed to create a .pml from a string of data
 need to organise the regex into a callable function, need to fimish the .pml compiler
 test from perl script:
-10gs D2-78[A]+187-208[A] D79-186[A] F209-209[A]
+10gsA D2-78[A]+187-208[A] D79-186[A] F209-209[A]
 1a35A D236-319[A] D320-430[A] D431-580[A] D591-635[A]+713-764[A] F215-235[A] F581-590[A] F765-765[A]
-1a36 D2-215[A]+320-431[A] D232-319[A] D432-583[A] D584-765[A]
+1a36a D2-215[A]+320-431[A] D232-319[A] D432-583[A] D584-765[A]
 """
 
 import re
@@ -90,7 +90,7 @@ def create_pymol(): #will compile all the data into a .pml file
 print(pdb_id_whole)
 print(pdb_id_chain)
 print(fetch_domains(domains))
-print(fragments)
+print(fetch_fragments(fragments))
 
 
 create_pymol()
