@@ -41,7 +41,6 @@ def fetch_fragments(list_of_fragments): #returns a list of coordinates that are 
         fragment_list.append(coordinatesRegex.search(fragment).group())
     return fragment_list
 
-
 def create_pymol(): #will compile all the data into a .pml file
     pymol_script = open('C:\\Users\\Ilya\\PycharmProjects\\pymol\\' + pdb_id_chain +'_chopping' '.pml', 'w')
     pdb_file = open('C:\\Users\\Ilya\\PycharmProjects\\pymol\\' + pdb_id_whole + '.pdb', 'r')
@@ -49,17 +48,15 @@ def create_pymol(): #will compile all the data into a .pml file
     for line in pdb_file:
         pymol_script.write(line.rstrip("\n") + "\\\n")
     pymol_script.write('""", "' + pdb_id_chain + '")\n')
-    pymol_script.write("select all\ncolour White\ndeselect\n")
-    pymol_script.write("select the_chain, chain " + pdb_id_chain[-1] + "\ndeselect\n")
     count = 1
     number_of_doms = len(fetch_domains(domains))
     for domain in range(number_of_doms): #puts all domains in .pml
-        pymol_script.write("select " + pdb_id_chain + str(count).zfill(2) + ", ")
+        pymol_script.write("create " + pdb_id_chain + str(count).zfill(2) + ",")
         for coordin in fetch_domains(domains)[pdb_id_chain + str(count).zfill(2)]:#puts all pieces of a single domain in .pml
             if coordin == fetch_domains(domains)[pdb_id_chain + str(count).zfill(2)][-1]: #doesnt add a + if it is the last piece
-                pymol_script.write("resi " + coordin)
+                pymol_script.write(" chain " + pdb_id_chain[-1] + " and resi " + coordin)
                 break
-            pymol_script.write("resi " + coordin + " + ")
+            pymol_script.write(" chain " + pdb_id_chain[-1] + " and resi " + coordin + " +")
         count += 1
         pymol_script.write("\n")
     count = 1
@@ -67,27 +64,23 @@ def create_pymol(): #will compile all the data into a .pml file
         pymol_script.write("colour " + list_of_colours[domain] + ", " + pdb_id_chain + str(count).zfill(2) + "\n")
         count += 1
 
-    pymol_script.write("select fragments, ")
+    pymol_script.write("create fragments, ")
     for fragment in fetch_fragments(fragments): #puts all fragments in .pml
         if len(fetch_fragments(fragments)) == 0:
             break
-        elif fragment == fetch_fragments(fragments)[-1]: #doesnt add a + if it is the last fragment
+        elif fragment == fetch_fragments(fragments)[-1]: #doesn't add a + if it is the last fragment
             pymol_script.write("resi " + fragment)
             break
         pymol_script.write("resi " + str(fragment) + " + ")
     pymol_script.write("\ncolour White, fragments\n")
-    pymol_script.write("hide all\ndeselect\ndelete sele\nshow cartoon, the_chain\n")
+    pymol_script.write("\n" + "hide all\ndeselect\ndelete sele\nshow cartoon, all\n")
+    pymol_script.write("hide cartoon, " + pdb_id_chain + "\nzoom\n")
     pymol_script.close()
     pdb_file.close()
-
-
-
-
 
 print(pdb_id_whole)
 print(pdb_id_chain)
 print(fetch_domains(domains))
 print(fetch_fragments(fragments))
-
 
 create_pymol()
