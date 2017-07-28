@@ -10,7 +10,7 @@ test from perl script:
 import re
 
 the_string = '''
-1a35A D236-319[A] D320-430[A] D431-580[A] D591-635[A]+713-764[A] F215-235[A] F581-590[A] F765-765[A]
+10gsA D2-78[A]+187-208[A] D79-186[A] F209-209[A]
 '''
 #creates different regexes
 pdb_id_wholeRegex = re.compile(r'\d\w{3}')
@@ -47,7 +47,7 @@ def create_pymol(): #will compile all the data into a .pml file
     pymol_script.write('cmd.read_pdbstr("""\\' + '\n')
     for line in pdb_file:
         pymol_script.write(line.rstrip("\n") + "\\\n")
-    pymol_script.write('""", "' + pdb_id_chain + '")\n')
+    pymol_script.write('""", "' + pdb_id_chain + '")\n\n')
     count = 1
     number_of_doms = len(fetch_domains(domains))
     for domain in range(number_of_doms): #puts all domains in .pml
@@ -59,28 +59,30 @@ def create_pymol(): #will compile all the data into a .pml file
             pymol_script.write(" chain " + pdb_id_chain[-1] + " and resi " + coordin + " +")
         count += 1
         pymol_script.write("\n")
-    count = 1
-    for domain in range(number_of_doms):
-        pymol_script.write("colour " + list_of_colours[domain] + ", " + pdb_id_chain + str(count).zfill(2) + "\n")
-        count += 1
-
     pymol_script.write("create fragments, ")
     for fragment in fetch_fragments(fragments): #puts all fragments in .pml
         if len(fetch_fragments(fragments)) == 0:
             break
         elif fragment == fetch_fragments(fragments)[-1]: #doesn't add a + if it is the last fragment
-            pymol_script.write("resi " + fragment)
+            pymol_script.write("resi " + fragment + "\n")
             break
         pymol_script.write("resi " + str(fragment) + " + ")
-    pymol_script.write("\ncolour White, fragments\n")
-    pymol_script.write("\n" + "hide all\ndeselect\ndelete sele\nshow cartoon, all\n")
-    pymol_script.write("hide cartoon, " + pdb_id_chain + "\nzoom\n")
+    pymol_script.write("create the_rest, not chain " + pdb_id_chain[-1])
+    pymol_script.write("\n\n")
+    count = 1
+    for domain in range(number_of_doms):
+        pymol_script.write("colour " + list_of_colours[domain] + ", " + pdb_id_chain + str(count).zfill(2) + "\n")
+        count += 1
+    pymol_script.write("colour White, fragments\n")
+    pymol_script.write("colour gray30, the_rest\n")
+    pymol_script.write("zoom\ndelete " + pdb_id_chain + "\nhide all\ndisable the_rest\nselect all\nshow cartoon, all\ndelete sele\n")
     pymol_script.close()
     pdb_file.close()
 
 print(pdb_id_whole)
 print(pdb_id_chain)
-print(fetch_domains(domains))
+print(domains)
+print(fetch_domains(domains).keys())
 print(fetch_fragments(fragments))
 
 create_pymol()
