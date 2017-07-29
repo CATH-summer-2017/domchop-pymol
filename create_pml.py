@@ -10,7 +10,7 @@ test from perl script:
 import re
 
 the_string = '''
-10gsA D2-78[A]+187-208[A] D79-186[A] F209-209[A]
+1a35A D236-319[A] D320-430[A] D431-580[A] D591-635[A]+713-764[A] F215-235[A] F581-590[A] F765-765[A]
 '''
 #creates different regexes
 pdb_id_wholeRegex = re.compile(r'\d\w{3}')
@@ -26,7 +26,7 @@ pdb_id_chain = pdb_id_chainRegex.search(the_string).group()
 domains = whole_domainRegex.findall(the_string)
 fragments = fragmentRegex.findall(the_string)
 
-def fetch_domains(list_of_strings):#returns a dictionary of domains and coordinates
+def fetch_domains(list_of_strings): #returns a dictionary of domains and coordinates
     dict_domains = {}
     count = 1  #print "%02d" % (1,)
     for string in list_of_strings:
@@ -41,16 +41,16 @@ def fetch_fragments(list_of_fragments): #returns a list of coordinates that are 
         fragment_list.append(coordinatesRegex.search(fragment).group())
     return fragment_list
 
-def create_pymol(): #will compile all the data into a .pml file
-    pymol_script = open('C:\\Users\\Ilya\\PycharmProjects\\pymol\\' + pdb_id_chain +'_chopping' '.pml', 'w')
-    pdb_file = open('C:\\Users\\Ilya\\PycharmProjects\\pymol\\' + pdb_id_whole + '.pdb', 'r')
+def create_pymol(): #compiles data into the pml file
+    pymol_script = open('C:\\Users\\Ilya\\PycharmProjects\\pymol\\' + pdb_id_chain +'_chopping' '.pml', 'w') #creates the file
+    pdb_file = open('C:\\Users\\Ilya\\PycharmProjects\\pymol\\' + pdb_id_whole + '.pdb', 'r') #opens a pdb file for the protein
     pymol_script.write('cmd.read_pdbstr("""\\' + '\n')
-    for line in pdb_file:
+    for line in pdb_file: #takes each line of pdb and adds it to the pml with a backslash at the end
         pymol_script.write(line.rstrip("\n") + "\\\n")
-    pymol_script.write('""", "' + pdb_id_chain + '")\n\n')
+    pymol_script.write('""", "' + pdb_id_whole + '")\n\n')
     count = 1
     number_of_doms = len(fetch_domains(domains))
-    for domain in range(number_of_doms): #puts all domains in .pml
+    for domain in range(number_of_doms): #puts each domains in .pml, creating a separate object
         pymol_script.write("create " + pdb_id_chain + str(count).zfill(2) + ",")
         for coordin in fetch_domains(domains)[pdb_id_chain + str(count).zfill(2)]:#puts all pieces of a single domain in .pml
             if coordin == fetch_domains(domains)[pdb_id_chain + str(count).zfill(2)][-1]: #doesnt add a + if it is the last piece
@@ -60,21 +60,21 @@ def create_pymol(): #will compile all the data into a .pml file
         count += 1
         pymol_script.write("\n")
     pymol_script.write("create fragments, ")
-    for fragment in fetch_fragments(fragments): #puts all fragments in .pml
+    for fragment in fetch_fragments(fragments): #puts all fragments in .pml, creating one object for them
         if len(fetch_fragments(fragments)) == 0:
             break
         elif fragment == fetch_fragments(fragments)[-1]: #doesn't add a + if it is the last fragment
             pymol_script.write("resi " + fragment + "\n")
             break
         pymol_script.write("resi " + str(fragment) + " + ")
-    pymol_script.write("create the_rest, not chain " + pdb_id_chain[-1])
+    pymol_script.write("create the_rest, not chain " + pdb_id_chain[-1]) #creates the rest of the protein as an object
     pymol_script.write("\n\n")
     count = 1
-    for domain in range(number_of_doms):
+    for domain in range(number_of_doms): #colours the domains
         pymol_script.write("colour " + list_of_colours[domain] + ", " + pdb_id_chain + str(count).zfill(2) + "\n")
         count += 1
-    pymol_script.write("colour White, fragments\n")
-    pymol_script.write("colour gray30, the_rest\n")
+    pymol_script.write("colour White, fragments\n") #colours the fragments
+    pymol_script.write("colour gray30, the_rest\n") #colours the rest of the chain
     pymol_script.write("zoom\ndelete " + pdb_id_chain + "\nhide all\ndisable the_rest\nselect all\nshow cartoon, all\ndelete sele\n")
     pymol_script.close()
     pdb_file.close()
