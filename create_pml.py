@@ -10,7 +10,7 @@ test from perl script:
 import re
 
 the_string = '''
-1a35A D236-319[A] D320-430[A] D431-580[A] D591-635[A]+713-764[A] F215-235[A] F581-590[A] F765-765[A]
+10gsA D2-78[A]+187-208[A] D79-186[A] F209-209[A]
 '''
 #creates different regexes
 pdb_id_wholeRegex = re.compile(r'\d\w{3}')
@@ -75,7 +75,7 @@ def create_pymol(): #compiles data into the pml file
         count += 1
     pymol_script.write("colour White, fragments\n") #colours the fragments
     pymol_script.write("colour gray30, the_rest\n") #colours the rest of the chain
-    pymol_script.write("zoom\ndelete " + pdb_id_chain + "\nhide all\ndisable the_rest\nselect all\nshow cartoon, all\ndelete sele\n")
+    pymol_script.write("zoom\ndelete " + pdb_id_whole + "\nhide all\ndisable the_rest\nselect all\nshow cartoon, all\ndelete sele\n")
     pymol_script.close()
     pdb_file.close()
 
