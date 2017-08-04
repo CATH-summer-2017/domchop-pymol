@@ -1,3 +1,26 @@
+set_colour dom1, [0, 0, 255]
+set_colour dom2, [255, 0, 0]
+set_colour dom3, [0, 255, 0]
+set_colour dom4, [255, 255, 0]
+set_colour dom5, [255, 100, 117]
+set_colour dom6, [127, 127, 127]
+set_colour dom7, [159, 31, 239]
+set_colour dom8, [174, 213, 255]
+set_colour dom9, [139, 239, 139]
+set_colour dom10, [255, 164, 0]
+set_colour dom11, [0, 255, 255]
+set_colour dom12, [174, 117, 88]
+set_colour dom13, [45, 138, 86]
+set_colour dom14, [255, 0, 100]
+set_colour dom15, [255, 0, 255]
+set_colour dom16, [255, 171, 186]
+set_colour dom17, [246, 246, 117]
+set_colour dom18, [255, 156, 0]
+set_colour dom19, [152, 255, 179]
+set_colour dom20, [255, 69, 0]
+set_colour dom21, [0, 250, 109]
+set_colour dom22, [58, 144, 255]
+set_colour dom23, [238, 130, 238]
 cmd.read_pdbstr("""\
 HEADER    ISOMERASE/DNA                           29-JAN-98   1A35              \
 TITLE     HUMAN TOPOISOMERASE I/DNA COMPLEX                                     \
@@ -5768,23 +5791,49 @@ MASTER      475    0    8   18   15    0    0    6 4947    3  168   50          
 END                                                                             \
 """, "1a35")
 
-create 1a35A01, chain A and resi 236-319
-create 1a35A02, chain A and resi 320-430
-create 1a35A03, chain A and resi 431-580
-create 1a35A04, chain A and resi 591-635 + chain A and resi 713-764
-create fragments, resi 215-235 + resi 581-590 + resi 765-765
-create the_rest, not chain A
+select 1a35A01, chain A and resi 236-319
+select 1a35A02, chain A and resi 320-430
+select 1a35A03, chain A and resi 431-580
+select 1a35A04, chain A and resi 591-635 + chain A and resi 713-764
+select fragments, resi 215-235 + resi 581-590 + resi 765-765
 
-colour Blue, 1a35A01
-colour Red, 1a35A02
-colour Green, 1a35A03
-colour Yellow, 1a35A04
+select the_rest, not chain A
+
+colour dom1, 1a35A01
+colour dom2, 1a35A02
+colour dom3, 1a35A03
+colour dom4, 1a35A04
 colour White, fragments
-colour gray30, the_rest
-zoom
-delete 1a35
+colour gray70, the_rest
+
 hide all
-disable the_rest
-select all
-show cartoon, all
+deselect
 delete sele
+
+hide all
+show surface, all
+show cartoon, all
+set transparency, 0.1
+zoom
+scene F4, store
+
+hide all
+show cartoon, all
+zoom
+scene F3, store
+
+hide all
+show cartoon, !the_rest
+show surface, !the_rest
+set transparency, 0.1
+zoom
+scene F2, store
+
+hide all
+show cartoon, !the_rest
+zoom
+scene F1, store
+
+set fog_start, 0
+set depth_cue, 0
+cmd.wizard("message", "Please us F1-F4 to switch between different scenes")

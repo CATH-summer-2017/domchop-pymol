@@ -1,3 +1,26 @@
+set_colour dom1, [0, 0, 255]
+set_colour dom2, [255, 0, 0]
+set_colour dom3, [0, 255, 0]
+set_colour dom4, [255, 255, 0]
+set_colour dom5, [255, 100, 117]
+set_colour dom6, [127, 127, 127]
+set_colour dom7, [159, 31, 239]
+set_colour dom8, [174, 213, 255]
+set_colour dom9, [139, 239, 139]
+set_colour dom10, [255, 164, 0]
+set_colour dom11, [0, 255, 255]
+set_colour dom12, [174, 117, 88]
+set_colour dom13, [45, 138, 86]
+set_colour dom14, [255, 0, 100]
+set_colour dom15, [255, 0, 255]
+set_colour dom16, [255, 171, 186]
+set_colour dom17, [246, 246, 117]
+set_colour dom18, [255, 156, 0]
+set_colour dom19, [152, 255, 179]
+set_colour dom20, [255, 69, 0]
+set_colour dom21, [0, 250, 109]
+set_colour dom22, [58, 144, 255]
+set_colour dom23, [238, 130, 238]
 cmd.read_pdbstr("""\
 HEADER    TRANSFERASE/TRANSFERASE INHIBITOR       14-AUG-97   10GS              \
 TITLE     HUMAN GLUTATHIONE S-TRANSFERASE P1-1, COMPLEX WITH TER117             \
@@ -4029,19 +4052,45 @@ MASTER      278    0    4   22    8    0   12    9 3521    2   90   34          
 END                                                                             \
 """, "10gs")
 
-create 10gsA01, chain A and resi 2-78 + chain A and resi 187-208
-create 10gsA02, chain A and resi 79-186
-create fragments, resi 209-209
-create the_rest, not chain A
+select 10gsA01, chain A and resi 2-78 + chain A and resi 187-208
+select 10gsA02, chain A and resi 79-186
+select fragments, resi 209-209
 
-colour Blue, 10gsA01
-colour Red, 10gsA02
+select the_rest, not chain A
+
+colour dom1, 10gsA01
+colour dom2, 10gsA02
 colour White, fragments
-colour gray30, the_rest
-zoom
-delete 10gs
+colour gray70, the_rest
+
 hide all
-disable the_rest
-select all
-show cartoon, all
+deselect
 delete sele
+
+hide all
+show surface, all
+show cartoon, all
+set transparency, 0.1
+zoom
+scene F4, store
+
+hide all
+show cartoon, all
+zoom
+scene F3, store
+
+hide all
+show cartoon, !the_rest
+show surface, !the_rest
+set transparency, 0.1
+zoom
+scene F2, store
+
+hide all
+show cartoon, !the_rest
+zoom
+scene F1, store
+
+set fog_start, 0
+set depth_cue, 0
+cmd.wizard("message", "Please us F1-F4 to switch between different scenes")
