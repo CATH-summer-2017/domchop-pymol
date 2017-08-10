@@ -12,7 +12,7 @@ test from perl script:
 import re
 
 the_string = '''
-1a35A D236-319[A] D320-430[A] D431-580[A] D591-635[A]+713-764[A] F215-235[A] F581-590[A] F765-765[A]
+4bgdA D451-471[A]+700-908[A] D472-699[A] D909-998[A] D999-1140[A] D1141-1198[A] D1199-1311[A] D1312-1540[A] D1541-1743[A] D1744-1846[A] D1847-1989[A] D1990-2049[A] D2050-2163[A] F442-450
 '''
 #creates different regexes
 pdb_id_wholeRegex = re.compile(r'\d\w{3}')
@@ -76,7 +76,7 @@ def set_colours(file_name): #sets domain colours to ones in CATH
         file_name.write("set_colour " + colour + ", " + dict_of_colours[colour] + "\n")
 
 def add_backslash(pdb, pdb_id, pml):#takes pdb and adds it to the pml
-    pymol_script.write('cmd.read_pdbstr("""\\' + '\n')
+    pml.write('cmd.read_pdbstr("""\\' + '\n')
     for line in pdb: #takes each line of pdb and adds it to the pml with a backslash at the end
         pml.write(line.rstrip("\n") + "\\\n")
     pml.write('""", "' + pdb_id + '")\n\n')
@@ -88,8 +88,7 @@ def add_domains(pml, source_of_domains):#creates a selection for each domain
         pml.write("select " + pdb_id_chain + str(count).zfill(2) + ",")
         for coordin in fetch_domains(source_of_domains)[
                     pdb_id_chain + str(count).zfill(2)]:  # puts all pieces of a single domain in .pml
-            if coordin == fetch_domains(source_of_domains)[pdb_id_chain + str(count).zfill(2)][
-                -1]:  # doesnt add a + if it is the last piece
+            if coordin == fetch_domains(source_of_domains)[pdb_id_chain + str(count).zfill(2)][-1]:  # doesnt add a + if it is the last piece
                 pml.write(" chain " + pdb_id_chain[-1] + " and resi " + coordin)
                 break
             pml.write(" chain " + pdb_id_chain[-1] + " and resi " + coordin + " +")
@@ -114,7 +113,7 @@ def colour_domains(pml, source_of_domains): #colours the selected domains
         count += 1
 
 def create_pymol(): #compiles data into the pml file
-    pymol_script = open('C:\\Users\\Ilya\\PycharmProjects\\pymol\\Pymol Scripts\\' + pdb_id_chain +'_chopping_testsuper' '.pml', 'w') #creates the file
+    pymol_script = open('C:\\Users\\Ilya\\PycharmProjects\\pymol\\Pymol Scripts\\' + pdb_id_chain +'_chopping' '.pml', 'w') #creates the file
     pdb_file = open('C:\\Users\\Ilya\\PycharmProjects\\pymol\\PDB files\\' + pdb_id_whole + '.pdb', 'r') #opens a pdb file for the protein
     set_colours(pymol_script)
     add_backslash(pdb_file, pdb_id_whole, pymol_script)
