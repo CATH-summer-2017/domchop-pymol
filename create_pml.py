@@ -76,6 +76,7 @@ def set_colours(file_name): #sets domain colours to ones in CATH
         file_name.write("set_colour " + colour + ", " + dict_of_colours[colour] + "\n")
 
 def add_backslash(pdb, pdb_id, pml):#takes pdb and adds it to the pml
+    pymol_script.write('cmd.read_pdbstr("""\\' + '\n')
     for line in pdb: #takes each line of pdb and adds it to the pml with a backslash at the end
         pml.write(line.rstrip("\n") + "\\\n")
     pml.write('""", "' + pdb_id + '")\n\n')
