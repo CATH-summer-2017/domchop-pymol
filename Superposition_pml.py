@@ -15,6 +15,10 @@ import re
 the_string = '''
 1bvsA D1-65[A] D66-148[A] D149-199[A] F200-203[A]
 '''
+
+the_string_super = '''
+1cukA D1-66[A] D67-142[A] D156-203[A]
+'''
 #creates different regexes
 pdb_id_wholeRegex = re.compile(r'\d\w{3}')
 pdb_id_chainRegex = re.compile(r'\d\w{4}')
@@ -55,16 +59,19 @@ pdb_id_chain = pdb_id_chainRegex.search(the_string).group()
 domains = whole_domainRegex.findall(the_string)
 fragments = fragmentRegex.findall(the_string)
 
+pdb_id_whole_super = pdb_id_wholeRegex.search(the_string_super).group()
+pdb_id_chain_super = pdb_id_chainRegex.search(the_string_super).group()
+domains_super = whole_domainRegex.findall(the_string_super)
+fragments_super = fragmentRegex.findall(the_string_super)
 
-def fetch_domains(list_of_strings): #returns a dictionary of domains and coordinates
+def fetch_domains(list_of_strings, pdb_id): #returns a dictionary of domains and coordinates
     dict_domains = {}
     count = 1  #print "%02d" % (1,)
     for string in list_of_strings:
         list_of_domains = coordinatesRegex.findall(string)
-        dict_domains[pdb_id_chain + str(count).zfill(2)] = list_of_domains
+        dict_domains[pdb_id + str(count).zfill(2)] = list_of_domains
         count += 1
     return dict_domains
-
 
 def fetch_fragments(list_of_fragments): #returns a list of coordinates that are fragments
     fragment_list = []
@@ -82,65 +89,69 @@ def add_backslash(pdb, pdb_id, pml):#takes pdb and adds it to the pml
         pml.write(line.rstrip("\n") + "\\\n")
     pml.write('""", "' + pdb_id + '")\n\n')
 
-def add_domains(pml, source_of_domains):#creates a selection for each domain
+def add_domains(pml, source_of_domains, pdb_id):#creates a selection for each domain
     count = 1
-    number_of_doms = len(fetch_domains(source_of_domains))
+    number_of_doms = len(fetch_domains(source_of_domains, pdb_id))
     for domain in range(number_of_doms):  # puts each domains in .pml, creating a separate object
-        pml.write("select " + pdb_id_chain + str(count).zfill(2) + ",")
-        for coordin in fetch_domains(source_of_domains)[
-                    pdb_id_chain + str(count).zfill(2)]:  # puts all pieces of a single domain in .pml
-            if coordin == fetch_domains(source_of_domains)[pdb_id_chain + str(count).zfill(2)][-1]:  # doesnt add a + if it is the last piece
-                pml.write(" chain " + pdb_id_chain[-1] + " and resi " + coordin)
+        pml.write("select " + pdb_id + str(count).zfill(2) + ",")
+        for coordin in fetch_domains(source_of_domains, pdb_id)[pdb_id + str(count).zfill(2)]:#puts all pieces of a single domain in .pml
+            if coordin == fetch_domains(source_of_domains, pdb_id)[pdb_id + str(count).zfill(2)][-1]:#doesnt add a + if it is last piece
+                pml.write(" chain " + pdb_id[-1] + " and resi " + coordin + " and " + pdb_id[0:4])
                 break
-            pml.write(" chain " + pdb_id_chain[-1] + " and resi " + coordin + " +")
+            pml.write(" chain " + pdb_id[-1] + " and resi " + coordin + " +")
         count += 1
         pml.write("\n")
 
-def add_fragments(pml, source_of_fragments): #creates a selection for fragments
-    pml.write("\nselect fragments, " + "chain " + pdb_id_chain[-1] + " and ")
+def add_fragments(pml, source_of_fragments, pdb_id): #creates a selection for fragments
     if len(fetch_fragments(source_of_fragments)) == 0:
+        pml.write("\n\n")
         return
+    pml.write("\nselect fragments, " + "chain " + pdb_id[-1] + " and " + pdb_id[0:4] + " and ")
     for fragment in fetch_fragments(source_of_fragments):  # puts all fragments in .pml, creating one object for them
         if fragment == fetch_fragments(source_of_fragments)[-1]:  # doesn't add a + if it is the last fragment
-            pml.write("resi " + fragment + "\n")
+            pml.write("resi " + fragment + "\n\n")
             break
-        pml.write("resi " + str(fragment) + " + ")
+        pml.write("resi " + fragment + " + ")
 
-def colour_domains(pml, source_of_domains): #colours the selected domains
-    number_of_doms = len(fetch_domains(source_of_domains))
+def colour_domains(pml, source_of_domains, pdb_id): #colours the selected domains
+    number_of_doms = len(fetch_domains(source_of_domains, pdb_id))
     count = 1
     for domain in range(number_of_doms):  # colours the domains
-        pml.write("colour " + list_of_colours[domain] + ", " + pdb_id_chain + str(count).zfill(2) + "\n")
+        pml.write("colour " + list_of_colours[domain] + ", " + pdb_id + str(count).zfill(2) + "\n")
         count += 1
 
 def create_pymol(): #compiles data into the pml file
-    pymol_script = open('C:\\Users\\Ilya\\PycharmProjects\\pymol\\Pymol Scripts\\' + pdb_id_chain +'_chopping' '.pml', 'w') #creates the file
+    pymol_script = open('C:\\Users\\Ilya\\PycharmProjects\\pymol\\Pymol Scripts\\' + pdb_id_chain + '_' + pdb_id_chain_super + '_superposition' '.pml', 'w') #creates the file
     pdb_file = open('C:\\Users\\Ilya\\PycharmProjects\\pymol\\PDB files\\' + pdb_id_whole + '.pdb', 'r') #opens a pdb file for the protein
+    pdb_file_super = open('C:\\Users\\Ilya\\PycharmProjects\\pymol\\PDB files\\' + pdb_id_whole_super + '.pdb', 'r') #opens a pdb file for the protein superposed
     set_colours(pymol_script)
     add_backslash(pdb_file, pdb_id_whole, pymol_script)
-    add_domains(pymol_script, domains)
-    add_fragments(pymol_script, fragments)
-    pymol_script.write("\nselect the_rest, not chain " + pdb_id_chain[-1]) #creates the rest of the protein as an object
-    pymol_script.write("\n\n")
-    colour_domains(pymol_script, domains)
-    pymol_script.write("colour White, fragments\n") #colours the fragments
-    pymol_script.write("colour gray70, the_rest\n")#colours the rest of the chain
-    pymol_script.write("\nhide all\ndeselect\ndelete sele\n\n")#creates blank screen
-    pymol_script.write("hide all\nshow surface, all\nshow cartoon, all\nset transparency, 0.1\nzoom\nscene F4, store\n\n")#all of protein with surface
-    pymol_script.write("hide all\nshow cartoon, all\nzoom\nscene F3, store\n\n")#all of protein in cartoon
-    pymol_script.write("hide all\nshow cartoon, !the_rest\nshow surface, !the_rest\nset transparency, 0.1\nzoom\nscene F2, store\n\n") #only chain with surface
-    pymol_script.write("hide all\nshow cartoon, !the_rest\nzoom\nscene F1, store\n\n") #only chain in cartoon
-    pymol_script.write("set fog_start, 0\nset depth_cue, 0\n")#visual effects
-    pymol_script.write('cmd.wizard("message", "Please us F1-F4 to switch between different scenes")')
+    add_backslash(pdb_file_super, pdb_id_whole_super, pymol_script)
+    add_domains(pymol_script, domains, pdb_id_chain)
+    add_domains(pymol_script, domains_super, pdb_id_chain_super)
+    add_fragments(pymol_script, fragments, pdb_id_chain)
+    add_fragments(pymol_script, fragments_super, pdb_id_chain_super)
+    colour_domains(pymol_script, domains, pdb_id_chain)
+    colour_domains(pymol_script, domains_super, pdb_id_chain_super)
+    pymol_script.write("\nhide all\ndeselect\nshow cartoon, all")
     pymol_script.close()
     pdb_file.close()
+    pdb_file_super.close()
 
 print("PDb ID = " + pdb_id_whole)
 print("Chain ID = " + pdb_id_chain)
-print("Number of domains = " + str(len(fetch_domains(domains))))
+print("Number of domains = " + str(len(fetch_domains(domains, pdb_id_chain))))
 print("Domain list: ")
 print(domains)
 print("Fragments list: ")
 print(fetch_fragments(fragments))
+
+print("\nSUPERPOSITION\n\nPDb ID = " + pdb_id_whole_super)
+print("Chain ID = " + pdb_id_chain_super)
+print("Number of domains = " + str(len(fetch_domains(domains_super, pdb_id_chain_super))))
+print("Domain list: ")
+print(domains_super)
+print("Fragments list: ")
+print(fetch_fragments(fragments_super))
 
 create_pymol()
