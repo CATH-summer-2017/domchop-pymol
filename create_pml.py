@@ -13,7 +13,8 @@ test from perl script:
 import re
 
 the_string = '''
-1bvsA D1-65[A] D66-148[A] D149-199[A] F200-203[A]
+1cukA D1-66[A] D67-142[A] D156-203[A]
+
 '''
 #creates different regexes
 pdb_id_wholeRegex = re.compile(r'\d\w{3}')
