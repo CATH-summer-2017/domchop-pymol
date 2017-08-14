@@ -52,7 +52,35 @@ dict_of_colours = { #colours from CATH
     "dom23" : "[238, 130, 238]"
 
 }
+
+dict_of_tint_colours = {
+ 'tint_dom1': '[127.5, 127.5, 255.0]',
+ 'tint_dom10': '[255.0, 209.5, 127.5]',
+ 'tint_dom11': '[127.5, 255.0, 255.0]',
+ 'tint_dom12': '[214.5, 186.0, 171.5]',
+ 'tint_dom13': '[150.0, 196.5, 170.5]',
+ 'tint_dom14': '[255.0, 127.5, 177.5]',
+ 'tint_dom15': '[255.0, 127.5, 255.0]',
+ 'tint_dom16': '[255.0, 213.0, 220.5]',
+ 'tint_dom17': '[250.5, 250.5, 186.0]',
+ 'tint_dom18': '[255.0, 205.5, 127.5]',
+ 'tint_dom19': '[203.5, 255.0, 217.0]',
+ 'tint_dom2': '[255.0, 127.5, 127.5]',
+ 'tint_dom20': '[255.0, 162.0, 127.5]',
+ 'tint_dom21': '[127.5, 252.5, 182.0]',
+ 'tint_dom22': '[156.5, 199.5, 255.0]',
+ 'tint_dom23': '[246.5, 192.5, 246.5]',
+ 'tint_dom3': '[127.5, 255.0, 127.5]',
+ 'tint_dom4': '[255.0, 255.0, 127.5]',
+ 'tint_dom5': '[255.0, 177.5, 186.0]',
+ 'tint_dom6': '[191.0, 191.0, 191.0]',
+ 'tint_dom7': '[207.0, 143.0, 247.0]',
+ 'tint_dom8': '[214.5, 234.0, 255.0]',
+ 'tint_dom9': '[197.0, 247.0, 197.0]'
+}
+
 list_of_colours = ["dom1", "dom2", "dom3", "dom4", "dom5", "dom6", "dom7", "dom8", "dom9", "dom10","dom11", "dom12", "dom13", "dom14", "dom15", "dom16", "dom17", "dom18", "dom19", "dom20", "dom21", "dom22", "dom23"]
+list_of_tint_colours = ["tint_dom1", "tint_dom2", "tint_dom3", "tint_dom4", "tint_dom5", "tint_dom6", "tint_dom7", "tint_dom8", "tint_dom9", "tint_dom10", "tint_dom11", "tint_dom12", "tint_dom13", "tint_dom14", "tint_dom15", "tint_dom16", "tint_dom17", "tint_dom18", "tint_dom19", "tint_dom20", "tint_dom21", "tint_dom22", "tint_dom23"]
 
 pdb_id_whole = pdb_id_wholeRegex.search(the_string).group()
 pdb_id_chain = pdb_id_chainRegex.search(the_string).group()
@@ -79,9 +107,9 @@ def fetch_fragments(list_of_fragments): #returns a list of coordinates that are 
         fragment_list.append(coordinatesRegex.search(fragment).group())
     return fragment_list
 
-def set_colours(file_name): #sets domain colours to ones in CATH
-    for colour in list_of_colours:
-        file_name.write("set_colour " + colour + ", " + dict_of_colours[colour] + "\n")
+def set_colours(file_name, colour_list, colour_dict): #sets domain colours to ones in CATH
+    for colour in colour_list:
+        file_name.write("set_colour " + colour + ", " + colour_dict[colour] + "\n")
 
 def add_backslash(pdb, pdb_id, pml):#takes pdb and adds it to the pml
     pml.write('cmd.read_pdbstr("""\\' + '\n')
@@ -96,7 +124,7 @@ def add_domains(pml, source_of_domains, pdb_id):#creates a selection for each do
         pml.write("select " + pdb_id + str(count).zfill(2) + ",")
         for coordin in fetch_domains(source_of_domains, pdb_id)[pdb_id + str(count).zfill(2)]:#puts all pieces of a single domain in .pml
             if coordin == fetch_domains(source_of_domains, pdb_id)[pdb_id + str(count).zfill(2)][-1]:#doesnt add a + if it is last piece
-                pml.write(" chain " + pdb_id[-1] + " and resi " + coordin + " and " + pdb_id[0:4])
+                pml.write(" chain " + pdb_id[-1] + " and resi " + coordin + " and " + pdb_id)
                 break
             pml.write(" chain " + pdb_id[-1] + " and resi " + coordin + " +")
         count += 1
@@ -106,33 +134,40 @@ def add_fragments(pml, source_of_fragments, pdb_id): #creates a selection for fr
     if len(fetch_fragments(source_of_fragments)) == 0:
         pml.write("\n\n")
         return
-    pml.write("\nselect fragments, " + "chain " + pdb_id[-1] + " and " + pdb_id[0:4] + " and ")
+    pml.write("\nselect fragments, " + "chain " + pdb_id[-1] + " and " + pdb_id + " and ")
     for fragment in fetch_fragments(source_of_fragments):  # puts all fragments in .pml, creating one object for them
         if fragment == fetch_fragments(source_of_fragments)[-1]:  # doesn't add a + if it is the last fragment
             pml.write("resi " + fragment + "\n\n")
             break
         pml.write("resi " + fragment + " + ")
 
-def colour_domains(pml, source_of_domains, pdb_id): #colours the selected domains
+def colour_domains(pml, source_of_domains, pdb_id, colours): #colours the selected domains
     number_of_doms = len(fetch_domains(source_of_domains, pdb_id))
     count = 1
     for domain in range(number_of_doms):  # colours the domains
-        pml.write("colour " + list_of_colours[domain] + ", " + pdb_id + str(count).zfill(2) + "\n")
+        pml.write("colour " + colours[domain] + ", " + pdb_id + str(count).zfill(2) + "\n")
         count += 1
 
 def create_pymol(): #compiles data into the pml file
     pymol_script = open('C:\\Users\\Ilya\\PycharmProjects\\pymol\\Pymol Scripts\\' + pdb_id_chain + '_' + pdb_id_chain_super + '_superposition' '.pml', 'w') #creates the file
     pdb_file = open('C:\\Users\\Ilya\\PycharmProjects\\pymol\\PDB files\\' + pdb_id_whole + '.pdb', 'r') #opens a pdb file for the protein
     pdb_file_super = open('C:\\Users\\Ilya\\PycharmProjects\\pymol\\PDB files\\' + pdb_id_whole_super + '.pdb', 'r') #opens a pdb file for the protein superposed
-    set_colours(pymol_script)
+    set_colours(pymol_script, list_of_colours, dict_of_colours)
+    set_colours(pymol_script, list_of_tint_colours, dict_of_tint_colours)
     add_backslash(pdb_file, pdb_id_whole, pymol_script)
     add_backslash(pdb_file_super, pdb_id_whole_super, pymol_script)
+    pymol_script.write("\ncreate " + pdb_id_chain + ", chain " + pdb_id_chain[-1] + " and " + pdb_id_chain[:4])
+    pymol_script.write("\ncreate "+pdb_id_chain_super+", chain "+pdb_id_chain_super[-1]+" and "+pdb_id_chain_super[:4])
+    pymol_script.write("\n\n")
+    pymol_script.write("delete " + pdb_id_chain[:4] + "\ndelete " + pdb_id_chain_super[:4])
+    pymol_script.write("\n\n")
     add_domains(pymol_script, domains, pdb_id_chain)
     add_domains(pymol_script, domains_super, pdb_id_chain_super)
     add_fragments(pymol_script, fragments, pdb_id_chain)
     add_fragments(pymol_script, fragments_super, pdb_id_chain_super)
-    colour_domains(pymol_script, domains, pdb_id_chain)
-    colour_domains(pymol_script, domains_super, pdb_id_chain_super)
+    colour_domains(pymol_script, domains, pdb_id_chain, list_of_colours)
+    colour_domains(pymol_script, domains_super, pdb_id_chain_super, list_of_tint_colours)
+    pymol_script.write("\nalign " + pdb_id_chain + ", " + pdb_id_chain_super)
     pymol_script.write("\nhide all\ndeselect\nshow cartoon, all")
     pymol_script.close()
     pdb_file.close()
