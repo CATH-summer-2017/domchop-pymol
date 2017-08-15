@@ -16624,7 +16624,8 @@ select 4bgdA09, chain A and resi 1744-1846
 select 4bgdA10, chain A and resi 1847-1989
 select 4bgdA11, chain A and resi 1990-2049
 select 4bgdA12, chain A and resi 2050-2163
-select fragments, resi 442-450
+
+select fragments, chain A and resi 442-450
 
 select the_rest, not chain A
 

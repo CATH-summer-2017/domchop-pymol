@@ -5859,7 +5859,8 @@ select 1a36A01, chain A and resi 2-215 + chain A and resi 320-431
 select 1a36A02, chain A and resi 232-319
 select 1a36A03, chain A and resi 432-583
 select 1a36A04, chain A and resi 584-765
-select fragments, 
+
+select fragments, chain A and 
 select the_rest, not chain A
 
 colour dom1, 1a36A01

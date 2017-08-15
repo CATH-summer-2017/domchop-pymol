@@ -4054,7 +4054,8 @@ END                                                                             
 
 select 10gsA01, chain A and resi 2-78 + chain A and resi 187-208
 select 10gsA02, chain A and resi 79-186
-select fragments, resi 209-209
+
+select fragments, chain A and resi 209-209
 
 select the_rest, not chain A
 

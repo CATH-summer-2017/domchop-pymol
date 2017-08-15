@@ -5795,7 +5795,8 @@ select 1a35A01, chain A and resi 236-319
 select 1a35A02, chain A and resi 320-430
 select 1a35A03, chain A and resi 431-580
 select 1a35A04, chain A and resi 591-635 + chain A and resi 713-764
-select fragments, resi 215-235 + resi 581-590 + resi 765-765
+
+select fragments, chain A and resi 215-235 + resi 581-590 + resi 765-765
 
 select the_rest, not chain A
 
