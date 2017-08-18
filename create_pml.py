@@ -1,5 +1,8 @@
 #!/usr/bin/env python
 import cgitb
+import tempfile
+import re
+
 cgitb.enable()
 print "Content-Type: text/x-pymol"
 print ""
@@ -14,7 +17,8 @@ test from perl script:
 1cukA D1-66[A] D67-142[A] D156-203[A]
 """
 
-import re
+#pdb_dir = 
+pdb_dir = '/cath/data/current/pdb'
 
 the_string = '''
 4bgdA D451-471[A]+700-908[A] D472-699[A] D909-998[A] D999-1140[A] D1141-1198[A] D1199-1311[A] D1312-1540[A] D1541-1743[A] D1744-1846[A] D1847-1989[A] D1990-2049[A] D2050-2163[A] F442-450
@@ -130,8 +134,8 @@ def print_info():
     print(fetch_fragments(fragments))
 
 def create_pymol(): #compiles data into the pml file
-    pymol_script = open('C:\\Users\\Ilya\\PycharmProjects\\pymol\\Pymol Scripts\\' + pdb_id_chain +'_chopping' '.pml', 'w') #creates the file
-    pdb_file = open('C:\\Users\\Ilya\\PycharmProjects\\pymol\\PDB files\\' + pdb_id_chain[0:4] + '.pdb', 'r') #opens a pdb file for the protein
+    pymol_script = tempfile.TemporaryFile()
+    pdb_file = open(pdb_dir + '/' + pdb_id_chain[0:4], 'r') #opens a pdb file for the protein
     set_colours(pymol_script)
     fetch_pdb(pdb_file, pdb_id_chain[0:4], pymol_script)
     add_domains(pymol_script, domains)
@@ -149,6 +153,7 @@ def create_pymol(): #compiles data into the pml file
     pymol_script.write("set fog_start, 0\nset depth_cue, 0\n")#visual effects
     pymol_script.write('cmd.wizard("message", "Please us F1-F4 to switch between different scenes")')
     pymol_script.close()
+    
     pdb_file.close()
     print_info()
 
