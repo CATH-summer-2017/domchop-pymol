@@ -1,4 +1,6 @@
 """
+this is supposed to create a .pml from a string of data
+need to organise the regex into a callable function, need to fimish the .pml compiler
 test from perl script:
 10gsA D2-78[A]+187-208[A] D79-186[A] F209-209[A]
 1a35A D236-319[A] D320-430[A] D431-580[A] D591-635[A]+713-764[A] F215-235[A] F581-590[A] F765-765[A]
@@ -22,15 +24,15 @@ coordinatesRegex = re.compile(r'\d+-\d+')
 
 #colours from CATH
 norm_colours = [
-     '[0, 0, 255]',
-     '[255, 0, 0]',
-     '[0, 255, 0]',
-     '[255, 255, 0]',
-     '[255, 100, 117]',
-     '[127, 127, 127]',
-     '[159, 31, 239]',
-     '[174, 213, 255]',
-     '[139, 239, 139]',
+    '[0, 0, 255]',
+    '[255, 0, 0]',
+    '[0, 255, 0]',
+    '[255, 255, 0]',
+    '[255, 100, 117]',
+    '[127, 127, 127]',
+    '[159, 31, 239]',
+    '[174, 213, 255]',
+    '[139, 239, 139]',
     '[255, 164, 0]',
     '[0, 255, 255]',
     '[174, 117, 88]',
@@ -145,7 +147,5 @@ def create_pymol(): #compiles data into the pml file
     pymol_script.close()
     pdb_file.close()
     print_info()
-
-
 
 create_pymol()
