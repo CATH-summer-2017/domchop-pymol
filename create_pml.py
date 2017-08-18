@@ -1,3 +1,9 @@
+#!/usr/bin/env python
+import cgitb
+cgitb.enable()
+print "Content-Type: text/x-pymol"
+print ""
+
 """
 test from perl script:
 10gsA D2-78[A]+187-208[A] D79-186[A] F209-209[A]
