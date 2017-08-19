@@ -1,22 +1,12 @@
-"""
-this is supposed to create a .pml from a string of data
-need to organise the regex into a callable function, need to fimish the .pml compiler
-test from perl script:
-10gsA D2-78[A]+187-208[A] D79-186[A] F209-209[A]
-1a35A D236-319[A] D320-430[A] D431-580[A] D591-635[A]+713-764[A] F215-235[A] F581-590[A] F765-765[A]
-1a36A D2-215[A]+320-431[A] D232-319[A] D432-583[A] D584-765[A]
-4bgdA D451-471[A]+700-908[A] D472-699[A] D909-998[A] D999-1140[A] D1141-1198[A] D1199-1311[A] D1312-1540[A] D1541-1743[A] D1744-1846[A] D1847-1989[A] D1990-2049[A] D2050-2163[A] F442-450
-1bvsA D1-65[A] D66-148[A] D149-199[A] F200-203[A]
-1cukA D1-66[A] D67-142[A] D156-203[A]
-"""
+#!/usr/bin/python3
+print("Content-type:text/html")
 
-import re
+import re, cgi, cgitb
 
-the_string = '''
-4bgdA D451-471[A]+700-908[A] D472-699[A] D909-998[A] D999-1140[A] D1141-1198[A] D1199-1311[A] D1312-1540[A] D1541-1743[A] D1744-1846[A] D1847-1989[A] D1990-2049[A] D2050-2163[A] F442-450
+form = cgi.FieldStorage()
+the_string = form.getvalue('chop-string')
+pdb_location = form.getvalue('pdb-place')
 
-'''
-#creates different regexes
 pdb_id_chainRegex = re.compile(r'\d\w{4}')
 whole_domainRegex = re.compile(r'D\d+-\d+\S*')
 fragmentRegex = re.compile(r'F\d{1,10}-\d{1,10}')
@@ -71,49 +61,49 @@ def fetch_fragments(list_of_fragments):
     return fragment_list
 
 #puts colours from CATH into pml
-def set_colours(pml):
+def set_colours():
     for colour in norm_colours:
-        pml.write("\nset_colour dom" + str(norm_colours.index(colour)+1)+", "+colour)
+        print("\nset_colour dom" + str(norm_colours.index(colour)+1)+", "+colour)
 
 #puts pdb info into the pml file
-def fetch_pdb(pdb, pdb_id, pml):#
-    pml.write('\ncmd.read_pdbstr("""\\' + '\n')
+def fetch_pdb(pdb, pdb_id):#
+    print('\ncmd.read_pdbstr("""\\' + '\n')
     for line in pdb: #takes each line of pdb and adds it to the pml with a backslash at the end
-        pml.write(line.rstrip("\n") + "\\\n")
-    pml.write('""", "' + pdb_id + '")\n\n')
+        print(line.rstrip("\n") + "\\\n")
+    print('""", "' + pdb_id + '")\n\n')
 
 #creates selection of each domain in pml
-def add_domains(pml, source_of_domains):
+def add_domains(source_of_domains):
     count = 1
     number_of_doms = len(fetch_domains(source_of_domains))
     for domain in range(number_of_doms):  # puts each domains in .pml, creating a separate object
-        pml.write("select " + pdb_id_chain + str(count).zfill(2) + ",")
+        print("select " + pdb_id_chain + str(count).zfill(2) + ",")
         for coordin in fetch_domains(source_of_domains)[
                     pdb_id_chain + str(count).zfill(2)]:  # puts all pieces of a single domain in .pml
             if coordin == fetch_domains(source_of_domains)[pdb_id_chain + str(count).zfill(2)][-1]:  # doesnt add a + if it is the last piece
-                pml.write(" chain " + pdb_id_chain[-1] + " and resi " + coordin)
+                print(" chain " + pdb_id_chain[-1] + " and resi " + coordin)
                 break
-            pml.write(" chain " + pdb_id_chain[-1] + " and resi " + coordin + " +")
+            print(" chain " + pdb_id_chain[-1] + " and resi " + coordin + " +")
         count += 1
-        pml.write("\n")
+        print("\n")
 
 #puts fragment selection in the pml
-def add_fragments(pml, source_of_fragments):
-    pml.write("\nselect fragments, " + "chain " + pdb_id_chain[-1] + " and ")
+def add_fragments(source_of_fragments):
+    print("\nselect fragments, " + "chain " + pdb_id_chain[-1] + " and ")
     if len(fetch_fragments(source_of_fragments)) == 0:
         return
-    for fragment in fetch_fragments(source_of_fragments):  # puts all fragments in .pml, creating one object for them
+    for fragment in fetch_fragments(source_of_fragments):  #puts all fragments in .pml, creating one object for them
         if fragment == fetch_fragments(source_of_fragments)[-1]:  # doesn't add a + if it is the last fragment
-            pml.write("resi " + fragment + "\n")
+            print("resi " + fragment + "\n")
             break
-        pml.write("resi " + str(fragment) + " + ")
+        print("resi " + str(fragment) + " + ")
 
 #colours the domains according to the chopping
-def colour_domains(pml, source_of_domains):
+def colour_domains(source_of_domains):
     number_of_doms = len(fetch_domains(source_of_domains))
     count = 1
     for domain in range(number_of_doms):  # colours the domains
-        pml.write("colour dom" + str(count) + ", " + pdb_id_chain + str(count).zfill(2) + "\n")
+        print("colour dom" + str(count) + ", " + pdb_id_chain + str(count).zfill(2) + "\n")
         count += 1
 
 #gets info about the chopped chain
@@ -126,25 +116,23 @@ def print_info():
     print(fetch_fragments(fragments))
 
 def create_pymol(): #compiles data into the pml file
-    pymol_script = open('C:\\Users\\Ilya\\PycharmProjects\\pymol\\Pymol Scripts\\' + pdb_id_chain +'_chopping' '.pml', 'w') #creates the file
-    pdb_file = open('C:\\Users\\Ilya\\PycharmProjects\\pymol\\PDB files\\' + pdb_id_chain[0:4] + '.pdb', 'r') #opens a pdb file for the protein
-    set_colours(pymol_script)
-    fetch_pdb(pdb_file, pdb_id_chain[0:4], pymol_script)
-    add_domains(pymol_script, domains)
-    add_fragments(pymol_script, fragments)
-    pymol_script.write("\nselect the_rest, not chain " + pdb_id_chain[-1]) #creates the rest of the protein as an object
-    pymol_script.write("\n\n")
-    colour_domains(pymol_script, domains)
-    pymol_script.write("\ncolour White, fragments") #colours the fragments
-    pymol_script.write("\nspectrum count, rainbow, the_rest")#colours the rest of the chain
-    pymol_script.write("\nhide all\ndeselect\ndelete sele\n\n")#creates blank screen
-    pymol_script.write("hide all\nshow surface, all\nshow cartoon, all\nset transparency, 0.1\nzoom\nscene F4, store\n\n")#all of protein with surface
-    pymol_script.write("hide all\nshow cartoon, !the_rest\nshow ribbon, the_rest\nzoom\nscene F3, store\n\n")#all of protein in cartoon
-    pymol_script.write("hide all\nshow cartoon, !the_rest\nshow surface, !the_rest\nset transparency, 0.1\nzoom\nscene F2, store\n\n") #only chain with surface
-    pymol_script.write("hide all\nshow cartoon, !the_rest\nzoom\nscene F1, store\n\n") #only chain in cartoon
-    pymol_script.write("set fog_start, 0\nset depth_cue, 0\n")#visual effects
-    pymol_script.write('cmd.wizard("message", "Please us F1-F4 to switch between different scenes")')
-    pymol_script.close()
+    pdb_file = open(pdb_location + pdb_id_chain[0:4] + '.pdb', 'r') #opens a pdb file for the protein
+    set_colours()
+    fetch_pdb(pdb_file, pdb_id_chain[0:4], )
+    add_domains(domains)
+    add_fragments(fragments)
+    print("\nselect the_rest, not chain " + pdb_id_chain[-1]) #creates the rest of the protein as an object
+    print("\n\n")
+    colour_domains(domains)
+    print("\ncolour White, fragments") #colours the fragments
+    print("\nspectrum count, rainbow, the_rest")#colours the rest of the chain
+    print("\nhide all\ndeselect\ndelete sele\n\n")#creates blank screen
+    print("hide all\nshow surface, all\nshow cartoon, all\nset transparency, 0.1\nzoom\nscene F4, store\n\n")#all of protein with surface
+    print("hide all\nshow cartoon, !the_rest\nshow ribbon, the_rest\nzoom\nscene F3, store\n\n")#all of protein in cartoon
+    print("hide all\nshow cartoon, !the_rest\nshow surface, !the_rest\nset transparency, 0.1\nzoom\nscene F2, store\n\n") #only chain with surface
+    print("hide all\nshow cartoon, !the_rest\nzoom\nscene F1, store\n\n") #only chain in cartoon
+    print("set fog_start, 0\nset depth_cue, 0\n")#visual effects
+    print('cmd.wizard("message", "Please us F1-F4 to switch between different scenes")')
     pdb_file.close()
     print_info()
 
