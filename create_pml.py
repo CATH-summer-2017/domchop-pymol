@@ -1,9 +1,11 @@
 #!/usr/bin/python3
-print("Content-type: text/x pymol")
+print("Content-type: text/x pymol\n")
 import re
-
+import cgi
+import cgitb
+cgitb.enable(display=0, logdir ='/domchop-pymol/logs/')
 the_string = '''
-4bgdA D451-471[A]+700-908[A] D472-699[A] D909-998[A] D999-1140[A] D1141-1198[A] D1199-1311[A] D1312-1540[A] D1541-1743[A] D1744-1846[A] D1847-1989[A] D1990-2049[A] D2050-2163[A] F442-450
+1bvsA D1-65[A] D66-148[A] D149-199[A] F200-203[A]
 '''
 
 pdb_dir = '/home/ilsenatorov/domchop-pymol/pdb_files/'
@@ -139,3 +141,4 @@ def create_pymol(): #compiles data into the  file
 
 
 create_pymol()
+
