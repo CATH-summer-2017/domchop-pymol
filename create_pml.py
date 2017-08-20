@@ -10,6 +10,8 @@ cgitb.enable()
 
 form = cgi.FieldStorage()
 the_string = form.getvalue('what_string')
+print(the_string)
+
 #the_string = "1cukA D1-66[A] D67-142[A] D156-203[A]"
 pdb_dir = '/home/ilsenatorov/domchop-pymol/pdb_files/'
 pml_dir = '/home/ilsenatorov/domchop-pymol/created_scripts/'
@@ -83,14 +85,14 @@ def fetch_pdb(pdb, pdb_id, pml):#
 def add_domains(pml, source_of_domains):
     count = 1
     number_of_doms = len(fetch_domains(source_of_domains))
-    for domain in range(number_of_doms):  # puts each domains in .pml, creating a separate object
+    for domain in range(number_of_doms):
         pml.write("select " + pdb_id_chain + str(count).zfill(2) + ",")
         for coordin in fetch_domains(source_of_domains)[
-                    pdb_id_chain + str(count).zfill(2)]:  # puts all pieces of a single domain in .pml
+                    pdb_id_chain + str(count).zfill(2)]:
             if coordin == fetch_domains(source_of_domains)[pdb_id_chain + str(count).zfill(2)][-1]:  # doesnt add a + if it is the last piece
-                pml.write(" chain " + pdb_id_chain[-1] + " & resi " + coordin)
+                pml.write(" chain " + pdb_id_chain[-1] + " and resi " + coordin)
                 break
-            pml.write(" chain " + pdb_id_chain[-1] + " & resi " + coordin + " +")
+            pml.write(" chain " + pdb_id_chain[-1] + " and resi " + coordin + " +")
         count += 1
         pml.write("\n")
 
