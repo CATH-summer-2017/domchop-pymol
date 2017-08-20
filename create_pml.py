@@ -88,15 +88,15 @@ def add_domains(pml, source_of_domains):
         for coordin in fetch_domains(source_of_domains)[
                     pdb_id_chain + str(count).zfill(2)]:  # puts all pieces of a single domain in .pml
             if coordin == fetch_domains(source_of_domains)[pdb_id_chain + str(count).zfill(2)][-1]:  # doesnt add a + if it is the last piece
-                pml.write(" chain " + pdb_id_chain[-1] + " and resi " + coordin)
+                pml.write(" chain " + pdb_id_chain[-1] + " & resi " + coordin)
                 break
-            pml.write(" chain " + pdb_id_chain[-1] + " and resi " + coordin + " +")
+            pml.write(" chain " + pdb_id_chain[-1] + " & resi " + coordin + " +")
         count += 1
         pml.write("\n")
 
 #puts fragment selection in the pml
 def add_fragments(pml, source_of_fragments):
-    pml.write("\nselect fragments, " + "chain " + pdb_id_chain[-1] + " and ")
+    pml.write("\nselect fragments, " + "chain " + pdb_id_chain[-1] + " & ")
     if len(fetch_fragments(source_of_fragments)) == 0:
         return
     for fragment in fetch_fragments(source_of_fragments):  # puts all fragments in .pml, creating one object for them
@@ -145,7 +145,5 @@ def create_pymol(): #compiles data into the pml file
     pymol_script.seek(0)
     print(pymol_script.read())
     pdb_file.close()
-
-
 
 create_pymol()
