@@ -120,6 +120,9 @@ def print_info():
     print(fetch_fragments(fragments))
 
 def create_pymol(): #compiles data into the pml file
+    print("Content-type: text/x-pymol") #header for content type
+    print("Content-Disposition: attachement; filename=" + pdb_id_chain + "_chopping.pml") #header for filename
+    print() #CGI requirment
     pymol_script = tempfile.TemporaryFile(mode='w+t') #creates a temporal file with the chopping
     pdb_file = open(pdb_dir + pdb_id_chain[0:4] + '.pdb', 'r') #opens a pdb file for the protein
     set_colours(pymol_script)
@@ -142,8 +145,10 @@ def create_pymol(): #compiles data into the pml file
     print(pymol_script.read()) #prints content of the temp file
     pdb_file.close()
 
-print("Content-type: text/x-pymol") #header for content type
-print("Content-Disposition: attachement; filename=" + pdb_id_chain + "_chopping.pml") #header for filename
-print() #CGI requirment
 #print(the_string)
-create_pymol()
+try:
+    create_pymol()
+except Exception as e:
+    print("Content-type: text/plain")
+    print()
+    print(e)
