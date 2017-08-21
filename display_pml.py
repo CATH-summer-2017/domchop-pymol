@@ -7,7 +7,6 @@ try:
 #    the_string = form.getvalue('chopping')
     the_string = "1cukA D1-66[A] D67-142[A] D156-203[A]"
     pdb_dir = '/home/ilsenatorov/domchop-pymol/pdb_files/'
-#some random comment
     #creates different regexes
     pdb_id_wholeRegex = re.compile(r'\d\w{3}')
     pdb_chainRegex = re.compile(r'\W\w\W')
