@@ -5,10 +5,10 @@ import cgi
 import tempfile
 
 form = cgi.FieldStorage()
-the_string = form.getvalue('what_string')
+the_string = form.getvalue('chopping')
 
 pdb_dir = '/home/ilsenatorov/domchop-pymol/pdb_files/'
-pml_dir = '/home/ilsenatorov/domchop-pymol/created_scripts/'
+
 #creates different regexes
 pdb_id_wholeRegex = re.compile(r'\d\w{3}')
 pdb_chainRegex = re.compile(r'\W\w\W')
