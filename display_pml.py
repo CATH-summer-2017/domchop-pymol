@@ -1,22 +1,17 @@
 #!/usr/bin/python3
-print("Content-type: text/x- pymol\n\n")
+
 import re
 import cgi
-import cgitb
 import tempfile
-cgitb.enable()
-
-
 
 form = cgi.FieldStorage()
 the_string = form.getvalue('what_string')
-print(the_string)
 
-#the_string = "1cukA D1-66[A] D67-142[A] D156-203[A]"
 pdb_dir = '/home/ilsenatorov/domchop-pymol/pdb_files/'
 pml_dir = '/home/ilsenatorov/domchop-pymol/created_scripts/'
 #creates different regexes
-pdb_id_chainRegex = re.compile(r'\d\w{4}')
+pdb_id_wholeRegex = re.compile(r'\d\w{3}')
+pdb_chainRegex = re.compile(r'\W\w\W')
 whole_domainRegex = re.compile(r'D\d+-\d+\S*')
 fragmentRegex = re.compile(r'F\d{1,10}-\d{1,10}')
 coordinatesRegex = re.compile(r'\d+-\d+')
@@ -47,7 +42,8 @@ norm_colours = [
     '[58, 144, 255]',
     '[238, 130, 238]']
 
-pdb_id_chain = pdb_id_chainRegex.search(the_string).group()
+#creates variables from regexes
+pdb_id_chain = pdb_id_wholeRegex.search(the_string).group() + (pdb_chainRegex.search(the_string).group())[1]
 domains = whole_domainRegex.findall(the_string)
 fragments = fragmentRegex.findall(the_string)
 
@@ -72,7 +68,6 @@ def fetch_fragments(list_of_fragments):
 def set_colours(pml):
     for colour in norm_colours:
         pml.write("\nset_colour dom" + str(norm_colours.index(colour) + 1) + ", " + colour)
-#        print("\nset_colour dom" + str(norm_colours.index(colour) + 1) + ", " + colour)
 
 #puts pdb info into the pml file
 def fetch_pdb(pdb, pdb_id, pml):#
@@ -111,7 +106,7 @@ def add_fragments(pml, source_of_fragments):
 def colour_domains(pml, source_of_domains):
     number_of_doms = len(fetch_domains(source_of_domains))
     count = 1
-    for domain in range(number_of_doms):  # colours the domains
+    for domain in range(number_of_doms):
         pml.write("colour dom" + str(count) + ", " + pdb_id_chain + str(count).zfill(2) + "\n")
         count += 1
 
@@ -125,8 +120,7 @@ def print_info():
     print(fetch_fragments(fragments))
 
 def create_pymol(): #compiles data into the pml file
-#    pymol_script = open(pml_dir + pdb_id_chain +'_chopping' '.pml', 'w') #creates the file
-    pymol_script = tempfile.TemporaryFile(mode='w+t')
+    pymol_script = tempfile.TemporaryFile(mode='w+t') #creates a temporal file with the chopping
     pdb_file = open(pdb_dir + pdb_id_chain[0:4] + '.pdb', 'r') #opens a pdb file for the protein
     set_colours(pymol_script)
     fetch_pdb(pdb_file, pdb_id_chain[0:4], pymol_script)
@@ -136,16 +130,20 @@ def create_pymol(): #compiles data into the pml file
     pymol_script.write("\n\n")
     colour_domains(pymol_script, domains)
     pymol_script.write("\ncolour White, fragments") #colours the fragments
-    pymol_script.write("\nspectrum count, rainbow, the_rest")#colours the rest of the chain
-    pymol_script.write("\nhide all\ndeselect\ndelete sele\n\n")#creates blank screen
-    pymol_script.write("hide all\nshow surface, all\nshow cartoon, all\nset transparency, 0.1\nzoom\nscene F4, store\n\n")#all of protein with surface
-    pymol_script.write("hide all\nshow cartoon, !the_rest\nshow ribbon, the_rest\nzoom\nscene F3, store\n\n")#all of protein in cartoon
+    pymol_script.write("\nspectrum count, rainbow, the_rest") #colours the rest of the chain
+    pymol_script.write("\nhide all\ndeselect\ndelete sele\n\n") #creates blank screen
+    pymol_script.write("hide all\nshow surface, all\nshow cartoon, all\nset transparency, 0.1\nzoom\nscene F4, store\n\n") #all of protein with surface
+    pymol_script.write("hide all\nshow cartoon, !the_rest\nshow ribbon, the_rest\nzoom\nscene F3, store\n\n") #all of protein in cartoon
     pymol_script.write("hide all\nshow cartoon, !the_rest\nshow surface, !the_rest\nset transparency, 0.1\nzoom\nscene F2, store\n\n") #only chain with surface
     pymol_script.write("hide all\nshow cartoon, !the_rest\nzoom\nscene F1, store\n\n") #only chain in cartoon
-    pymol_script.write("set fog_start, 0\nset depth_cue, 0\n")#visual effects
+    pymol_script.write("set fog_start, 0\nset depth_cue, 0\n") #visual effects
     pymol_script.write('cmd.wizard("message", "Please us F1-F4 to switch between different scenes")')
     pymol_script.seek(0)
-    print(pymol_script.read())
+    print(pymol_script.read()) #prints content of the temp file
     pdb_file.close()
 
+print("Content-type: text/x-pymol") #header for content type
+print("Content-Disposition: attachement; filename=" + pdb_id_chain + "_chopping.pml") #header for filename
+print() #CGI requirment
+#print(the_string)
 create_pymol()
