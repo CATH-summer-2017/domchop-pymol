@@ -5,7 +5,7 @@ import tempfile
 try:
     form = cgi.FieldStorage()
     the_string = form.getvalue('chopping')
-    pdb_dir = '/home/ilsenatorov/domchop-pymol/pdb_files/'
+    pdb_dir = '/var/www/cgi-bin/pdb_files/'
     #creates different regexes
     pdb_id_wholeRegex = re.compile(r'\d\w{3}')
     pdb_chainRegex = re.compile(r'\W\w\W')
