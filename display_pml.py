@@ -1,11 +1,16 @@
-#!/usr/bin/python3
+#!/usr/bin/env python3
 import re
 import cgi
 import tempfile
+import configparser
+from random import randrange
 try:
+    config = configparser.ConfigParser()
+    config.read('config.ini')
     form = cgi.FieldStorage()
     the_string = form.getvalue('chopping')
-    pdb_dir = '/var/www/cgi-bin/pdb_files/'
+    pdb_dir = config['DEFAULT']['pdb_dir']
+    is_pdb = config['DEFAULT']['is_pdb']
     #creates different regexes
     pdb_id_wholeRegex = re.compile(r'\d\w{3}')
     pdb_chainRegex = re.compile(r'\W\w\W')
@@ -109,8 +114,8 @@ try:
     def create_pymol(): #compiles data into the pml file
         pymol_script = tempfile.TemporaryFile(mode='w+t') #creates a temporal file with the chopping
         pymol_script.write("Content-type: text/x-pymol\n")
-        pymol_script.write("Content-Disposition: attachement; filename=" + pdb_id_chain + "_chopping.pml\n")
-        pdb_file = open(pdb_dir + pdb_id_chain[0:4] + '.pdb', 'r') #opens a pdb file for the protein
+        pymol_script.write("Content-Disposition: attachement; filename=" + pdb_id_chain + "_chopping" + str(randrange(10000, 99999, 1))+".pml\n")
+        pdb_file = open(pdb_dir + pdb_id_chain[0:4] + is_pdb, 'r') #opens a pdb file for the protein
         set_colours(pymol_script)
         fetch_pdb(pdb_file, pdb_id_chain[0:4], pymol_script)
         add_domains(pymol_script, domains)
@@ -119,18 +124,26 @@ try:
         pymol_script.write("\n\n")
         colour_domains(pymol_script, domains)
         pymol_script.write("\ncolour White, fragments") #colours the fragments
-        pymol_script.write("\nspectrum count, rainbow, the_rest") #colours the rest of the chain
+        pymol_script.write("\ncolour gray50, the_rest") #colours the rest of the chain
         pymol_script.write("\nhide all\ndeselect\ndelete sele\n\n") #creates blank screen
-        pymol_script.write("hide all\nshow surface, all\nshow cartoon, all\nset transparency, 0.1\nzoom\nscene F4, store\n\n") #all of protein with surface
-        pymol_script.write("hide all\nshow cartoon, !the_rest\nshow ribbon, the_rest\nzoom\nscene F3, store\n\n") #all of protein in cartoon
-        pymol_script.write("hide all\nshow cartoon, !the_rest\nshow surface, !the_rest\nset transparency, 0.1\nzoom\nscene F2, store\n\n") #only chain with surface
-        pymol_script.write("hide all\nshow cartoon, !the_rest\nzoom\nscene F1, store\n\n") #only chain in cartoon
         pymol_script.write("set fog_start, 0\nset depth_cue, 0\n") #visual effects
-        pymol_script.write('cmd.wizard("message", "Please us F1-F4 to switch between different scenes")')
+        pymol_script.write("set label_size, 12\nset label_position,(1.5,1.5,1.5)\nset label_color, gray70\n")
+        pymol_script.write("hide all\nshow surface, all\nshow cartoon, !the_rest\nset transparency, 0.6\n") #all of protein with surface
+        pymol_script.write("zoom all\norigin all\nscene F4, store\n\n") #all of protein with surface
+        pymol_script.write("hide all\nshow cartoon, !the_rest\nshow ribbon, the_rest\n")#all of protein in cartoon
+        pymol_script.write("zoom all\norigin all\nscene F3, store\n\n") #all of protein in cartoon
+        pymol_script.write("hide all\nshow cartoon, !the_rest\nshow surface, !the_rest\nset transparency, 0.6\n") #only chain with surface
+        pymol_script.write("zoom !the_rest\norigin !the_rest\nscene F2, store\n\n") #only chain with surface
+        pymol_script.write("hide all\nshow cartoon, !the_rest\norigin !the_rest\nzoom !the_rest\nlabel n. n and !the_rest, resi\nscene F5, store\n\n") #show with labels
+        pymol_script.write("hide all\nshow cartoon, !the_rest\n") #only chain in cartoon, main view
+        pymol_script.write("zoom !the_rest\norigin !the_rest\nscene F1, store\n\n") #only chain in cartoon, main view
+        pymol_script.write('cmd.wizard("message", "Please us F1-F5 to switch between different scenes")')
         pymol_script.seek(0)
         print(pymol_script.read()) #prints content of the temp file
         pdb_file.close()
         pymol_script.close()
+        for key, value in config['DEFAULT'].items():
+            print(key, " : ", value)
     create_pymol()
 except Exception as e:
     print("Content-type: text/plain")
