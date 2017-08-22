@@ -2,6 +2,7 @@
 import re
 import cgi
 import tempfile
+from random import randrange
 try:
     form = cgi.FieldStorage()
     the_string = form.getvalue('chopping')
@@ -109,7 +110,7 @@ try:
     def create_pymol(): #compiles data into the pml file
         pymol_script = tempfile.TemporaryFile(mode='w+t') #creates a temporal file with the chopping
         pymol_script.write("Content-type: text/x-pymol\n")
-        pymol_script.write("Content-Disposition: attachement; filename=" + pdb_id_chain + "_chopping.pml\n")
+        pymol_script.write("Content-Disposition: attachement; filename=" + pdb_id_chain + "_chopping" + str(randrange(10000, 99999, 1))+".pml\n")
         pdb_file = open(pdb_dir + pdb_id_chain[0:4] + '.pdb', 'r') #opens a pdb file for the protein
         set_colours(pymol_script)
         fetch_pdb(pdb_file, pdb_id_chain[0:4], pymol_script)
