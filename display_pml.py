@@ -122,16 +122,18 @@ try:
         pymol_script.write("\ncolour White, fragments") #colours the fragments
         pymol_script.write("\ncolour gray50, the_rest") #colours the rest of the chain
         pymol_script.write("\nhide all\ndeselect\ndelete sele\n\n") #creates blank screen
-        pymol_script.write("hide all\nshow surface, all\nshow cartoon, !the_rest\nshow ribbon, the_rest\nset transparency, 0.6\n") #all of protein with surface
+        pymol_script.write("set fog_start, 0\nset depth_cue, 0\n") #visual effects
+        pymol_script.write("set label_size, 12\nset label_position,(1.5,1.5,1.5)\nset label_color, gray70\n")
+        pymol_script.write("hide all\nshow surface, all\nshow cartoon, !the_rest\nset transparency, 0.6\n") #all of protein with surface
         pymol_script.write("zoom all\norigin all\nscene F4, store\n\n") #all of protein with surface
         pymol_script.write("hide all\nshow cartoon, !the_rest\nshow ribbon, the_rest\n")#all of protein in cartoon
         pymol_script.write("zoom all\norigin all\nscene F3, store\n\n") #all of protein in cartoon
         pymol_script.write("hide all\nshow cartoon, !the_rest\nshow surface, !the_rest\nset transparency, 0.6\n") #only chain with surface
         pymol_script.write("zoom !the_rest\norigin !the_rest\nscene F2, store\n\n") #only chain with surface
+        pymol_script.write("hide all\nshow cartoon, !the_rest\norigin !the_rest\nzoom !the_rest\nlabel n. n and !the_rest, resi\nscene F5, store\n\n") #show with labels
         pymol_script.write("hide all\nshow cartoon, !the_rest\n") #only chain in cartoon, main view
         pymol_script.write("zoom !the_rest\norigin !the_rest\nscene F1, store\n\n") #only chain in cartoon, main view
-        pymol_script.write("set fog_start, 0\nset depth_cue, 0\n") #visual effects
-        pymol_script.write('cmd.wizard("message", "Please us F1-F4 to switch between different scenes")')
+        pymol_script.write('cmd.wizard("message", "Please us F1-F5 to switch between different scenes")')
         pymol_script.seek(0)
         print(pymol_script.read()) #prints content of the temp file
         pdb_file.close()
