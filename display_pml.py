@@ -5,9 +5,12 @@ import tempfile
 import configparser
 from random import randrange
 try:
+    config = configparser.ConfigParser()
+    config.read('config.ini')
     form = cgi.FieldStorage()
     the_string = form.getvalue('chopping')
-    pdb_dir = '/var/www/cgi-bin/pdb_files/'
+    pdb_dir = config['DEFAULT']['pdb_dir']
+    is_pdb = config['DEFAULT']['is_pdb']
     #creates different regexes
     pdb_id_wholeRegex = re.compile(r'\d\w{3}')
     pdb_chainRegex = re.compile(r'\W\w\W')
@@ -112,7 +115,7 @@ try:
         pymol_script = tempfile.TemporaryFile(mode='w+t') #creates a temporal file with the chopping
         pymol_script.write("Content-type: text/x-pymol\n")
         pymol_script.write("Content-Disposition: attachement; filename=" + pdb_id_chain + "_chopping" + str(randrange(10000, 99999, 1))+".pml\n")
-        pdb_file = open(pdb_dir + pdb_id_chain[0:4] + '.pdb', 'r') #opens a pdb file for the protein
+        pdb_file = open(pdb_dir + pdb_id_chain[0:4] + is_pdb, 'r') #opens a pdb file for the protein
         set_colours(pymol_script)
         fetch_pdb(pdb_file, pdb_id_chain[0:4], pymol_script)
         add_domains(pymol_script, domains)
@@ -139,6 +142,8 @@ try:
         print(pymol_script.read()) #prints content of the temp file
         pdb_file.close()
         pymol_script.close()
+        for key, value in config['DEFAULT'].items():
+            print(key, " : ", value)
     create_pymol()
 except Exception as e:
     print("Content-type: text/plain")
