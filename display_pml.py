@@ -120,13 +120,13 @@ try:
         pymol_script.write("\n\n")
         colour_domains(pymol_script, domains)
         pymol_script.write("\ncolour White, fragments") #colours the fragments
-        pymol_script.write("\nspectrum count, rainbow, the_rest") #colours the rest of the chain
+        pymol_script.write("\ncolour gray50, the_rest") #colours the rest of the chain
         pymol_script.write("\nhide all\ndeselect\ndelete sele\n\n") #creates blank screen
-        pymol_script.write("hide all\nshow surface, all\nshow cartoon, all\nset transparency, 0.1\n") #all of protein with surface
+        pymol_script.write("hide all\nshow surface, all\nshow cartoon, a\nset transparency, 0.6\n") #all of protein with surface
         pymol_script.write("zoom "+pdb_id_chain[0:4]+"\norigin "+pdb_id_chain[0:4]+"\nscene F4, store\n\n") #all of protein with surface
         pymol_script.write("hide all\nshow cartoon, !the_rest\nshow ribbon, the_rest\n")#all of protein in cartoon
         pymol_script.write("zoom "+pdb_id_chain[0:4]+"\norigin "+pdb_id_chain[0:4]+"\nscene F3, store\n\n") #all of protein in cartoon
-        pymol_script.write("hide all\nshow cartoon, !the_rest\nshow surface, !the_rest\nset transparency, 0.1\n") #only chain with surface
+        pymol_script.write("hide all\nshow cartoon, !the_rest\nshow surface, !the_rest\nset transparency, 0.6\n") #only chain with surface
         pymol_script.write("zoom chain "+pdb_id_chain[-1]+"\norigin chain "+pdb_id_chain[-1]+ "\nscene F2, store\n\n") #only chain with surface
         pymol_script.write("hide all\nshow cartoon, !the_rest\n") #only chain in cartoon, main view
         pymol_script.write("zoom chain "+pdb_id_chain[-1]+"\norigin chain "+pdb_id_chain[-1]+"\nscene F1, store\n\n") #only chain in cartoon, main view
