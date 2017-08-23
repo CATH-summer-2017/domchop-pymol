@@ -88,14 +88,14 @@ try:
             pml.write("\n")
     #puts fragment selection in the pml
     def add_fragments(pml, source_of_fragments):
-        pml.write("\nselect fragments, " + "chain " + pdb_id_chain[-1] + " & ")
         if len(fetch_fragments(source_of_fragments)) == 0:
             return
+        pml.write("\nselect fragments, ")
         for fragment in fetch_fragments(source_of_fragments):  # puts all fragments in .pml, creating one object for them
             if fragment == fetch_fragments(source_of_fragments)[-1]:  # doesn't add a + if it is the last fragment
-                pml.write("resi " + fragment + "\n")
+                pml.write("chain " + pdb_id_chain[-1] + " & " + "resi " + fragment + "\n")
                 break
-            pml.write("resi " + str(fragment) + " + ")
+            pml.write("chain " + pdb_id_chain[-1] + " & " + "resi " + str(fragment) + " + ")
     #colours the domains according to the chopping
     def colour_domains(pml, source_of_domains):
         number_of_doms = len(fetch_domains(source_of_domains))
@@ -118,6 +118,7 @@ try:
         pdb_file = open(pdb_dir + pdb_id_chain[0:4] + is_pdb, 'r') #opens a pdb file for the protein
         set_colours(pymol_script)
         fetch_pdb(pdb_file, pdb_id_chain[0:4], pymol_script)
+        pymol_script.write("\ncolour White, all\n")
         add_domains(pymol_script, domains)
         add_fragments(pymol_script, fragments)
         pymol_script.write("\nselect the_rest, not chain " + pdb_id_chain[-1]) #creates the rest of the protein as an object
@@ -128,16 +129,18 @@ try:
         pymol_script.write("\nhide all\ndeselect\ndelete sele\n\n") #creates blank screen
         pymol_script.write("set fog_start, 0\nset depth_cue, 0\n") #visual effects
         pymol_script.write("set label_size, 12\nset label_position,(1.5,1.5,1.5)\nset label_color, gray70\n") #comnfig the labeel size, colour and location
-        pymol_script.write("hide all\nshow surface, all\nshow cartoon, !the_rest\nset transparency, 0.6\n") #all of protein with surface
+        pymol_script.write("hide all\nshow surface, all\nshow cartoon, !the_rest\nset transparency, 0.4\n") #all of protein with surface
         pymol_script.write("zoom all\norigin all\nscene F4, store\n\n") #all of protein with surface
         pymol_script.write("hide all\nshow cartoon, !the_rest\nshow ribbon, the_rest\n")#all of protein in cartoon
         pymol_script.write("zoom all\norigin all\nscene F3, store\n\n") #all of protein in cartoon
-        pymol_script.write("hide all\nshow cartoon, !the_rest\nshow surface, !the_rest\nset transparency, 0.6\n") #only chain with surface
+        pymol_script.write("hide all\nshow cartoon, !the_rest\nshow surface, !the_rest\nset transparency, 0.4\n") #only chain with surface
         pymol_script.write("zoom !the_rest\norigin !the_rest\nscene F2, store\n\n") #only chain with surface
+        pymol_script.write("hide all\nshow surface, all\nzoom all\norigin all\nscene F6, store\n\n")
         pymol_script.write("hide all\nshow cartoon, !the_rest\norigin !the_rest\nzoom !the_rest\nlabel n. n and !the_rest, resi\nscene F5, store\n\n") #show with labels
+        #final view with F1
         pymol_script.write("hide all\nshow cartoon, !the_rest\n") #only chain in cartoon, main view
         pymol_script.write("zoom !the_rest\norigin !the_rest\nscene F1, store\n\n") #only chain in cartoon, main view
-        pymol_script.write('cmd.wizard("message", "Please us F1-F5 to switch between different scenes")') #message
+        pymol_script.write('cmd.wizard("message", "Please us F1-F6 to switch between different scenes")') #message
         pymol_script.seek(0)
         print(pymol_script.read()) #prints content of the temp file
         pdb_file.close()
