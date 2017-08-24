@@ -1,4 +1,4 @@
-#!usr/bin/python3
+#!/usr/bin/python3
 
 import re
 import cgi
@@ -10,11 +10,11 @@ import traceback
 from random import randrange
 
 ###IMPORTANT PREREQUISITES
+
 def print_err():
 	print("Content-type: text/plain\n")
-	print("The script encountered the following problem:")
-	traceback.print_exc()
-	sys.exc_info()[0]
+	print("The script encountered the following problem:\n")
+	print(traceback.format_exc())
 	sys.exit()
 
 bindir = os.path.abspath(os.path.dirname(sys.argv[0]))
@@ -57,10 +57,15 @@ try:
 except:
 	print_err()
 
-is_pdb = config['DEFAULT']['is_pdb']
+try:
+	is_pdb = config['DEFAULT']['is_pdb']
+except:
+	print_err()
 
 try:
     the_string = form.getvalue('chopping')
 except:
     print("Conten-type: text/plain\n" + e)
+
+print("Content-type: text/plain\n")
 print(the_string)
