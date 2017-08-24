@@ -9,7 +9,6 @@ import sys
 
 bindir = os.path.abspath(os.path.dirname(sys.argv[0]))
 
-
 from random import randrange
 try:
     config = configparser.ConfigParser()
