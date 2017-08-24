@@ -1,12 +1,26 @@
-#!/usr/bin/env python3
+#!/usr/local/bin/python3
 import re
 import cgi
 import tempfile
 import configparser
+import traceback
+import os
+import sys
+
+bindir = os.path.abspath(os.path.dirname(sys.argv[0]))
+config_file = os.environ['DOMCHOP_PYMOL_CONFIG_FILE'] or bindir + '/' + 'config.ini'
+
 from random import randrange
 try:
     config = configparser.ConfigParser()
-    config.read('config.ini')
+    sys.stderr.write( "config_file: " + config_file + "\n" )
+    try: 
+        config.read( config_file )
+    except Exception as e:
+        print( "Content-type: text/plain\n\n" )
+        print( "Error: failed to read config file '" + config_file + "' (err: " + e + ")" )
+        sys.exit(1)
+
     form = cgi.FieldStorage()
     the_string = form.getvalue('chopping')
     pdb_dir = config['DEFAULT']['pdb_dir']
@@ -151,3 +165,5 @@ except Exception as e:
     print()
     print("The script encountered a problem:")
     print(e)
+    traceback.print_exc()
+
