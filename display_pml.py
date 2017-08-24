@@ -1,4 +1,4 @@
-#!/usr/local/bin/python3
+#!/usr/bin/python3
 import re
 import cgi
 import tempfile
@@ -14,7 +14,7 @@ from random import randrange
 try:
     config = configparser.ConfigParser()
     sys.stderr.write( "config_file: " + config_file + "\n" )
-    try: 
+    try:
         config.read( config_file )
     except Exception as e:
         print( "Content-type: text/plain\n\n" )
@@ -166,4 +166,3 @@ except Exception as e:
     print("The script encountered a problem:")
     print(e)
     traceback.print_exc()
-
