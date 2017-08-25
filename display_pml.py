@@ -1,24 +1,26 @@
-#!/usr/bin/env python3
+#!/usr/bin/python3
 import re
 import cgi
 import tempfile
 import configparser
+import traceback
+import os
+import sys
 from random import randrange
+
+
 try:
+
+    ###IMPORTANT PREP
+    def print_err(content):
+        print("Content-type: text/plain\n")
+        print("The script encountered the following problem:\n")
+        print(content)
+        sys.exit()
+    bindir = os.path.abspath(os.path.dirname(sys.argv[0])) #FIND ABSPATH FOR THE PROCESS
     config = configparser.ConfigParser()
-    config.read('config.ini')
     form = cgi.FieldStorage()
-    the_string = form.getvalue('chopping')
-    pdb_dir = config['DEFAULT']['pdb_dir']
-    is_pdb = config['DEFAULT']['is_pdb']
-    #creates different regexes
-    pdb_id_wholeRegex = re.compile(r'\d\w{3}')
-    pdb_chainRegex = re.compile(r'\W\w\W')
-    whole_domainRegex = re.compile(r'D\d+-\d+\S*')
-    fragmentRegex = re.compile(r'F\d{1,10}-\d{1,10}')
-    coordinatesRegex = re.compile(r'\d+-\d+')
-    #colours from CATH
-    norm_colours = [
+    norm_colours = [ #colours from CATH
         '[0, 0, 255]',
         '[255, 0, 0]',
         '[0, 255, 0]',
@@ -42,6 +44,25 @@ try:
         '[0, 250, 109]',
         '[58, 144, 255]',
         '[238, 130, 238]']
+
+    ###TAKE INPUTS
+
+    config.read(bindir + '/' + 'config.ini') #read config file
+    the_string = form.getvalue('chopping')
+    if len(the_string) < 5: #check string validity
+        print_err("String is too short!")
+    pdb_dir = config['DEFAULT']['pdb_dir']
+    is_pdb = config['DEFAULT']['is_pdb']
+
+    ###HANDLE THE INPUTS
+
+
+    #creates different regexes
+    pdb_id_wholeRegex = re.compile(r'\d\w{3}')
+    pdb_chainRegex = re.compile(r'\W\w\W')
+    whole_domainRegex = re.compile(r'D\d+-\d+\S*')
+    fragmentRegex = re.compile(r'F\d{1,10}-\d{1,10}')
+    coordinatesRegex = re.compile(r'\d+-\d+')
 
     #creates variables from regexes
     pdb_id_chain = pdb_id_wholeRegex.search(the_string).group() + (pdb_chainRegex.search(the_string).group())[1]
@@ -147,7 +168,6 @@ try:
         pymol_script.close()
     create_pymol()
 except Exception as e:
-    print("Content-type: text/plain")
-    print()
-    print("The script encountered a problem:")
-    print(e)
+    print("Content-type: text/plain\n")
+    print("The script encountered the following problem:\n")
+    print(traceback.format_exc())
