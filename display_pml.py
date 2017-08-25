@@ -48,7 +48,7 @@ try:
     ###TAKE INPUTS
     bindir = os.path.abspath(os.path.dirname(sys.argv[0]))
     try:
-        config_file = os.envion['DOMCHOP_PYMOL_CONFIG_FILE']
+        config_file = os.envrion['DOMCHOP_PYMOL_CONFIG_FILE']
     except:
         try:
             config_file = (bindir + '/' + 'config.ini')
