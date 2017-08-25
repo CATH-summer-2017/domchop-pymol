@@ -48,9 +48,12 @@ try:
     ###TAKE INPUTS
     bindir = os.path.abspath(os.path.dirname(sys.argv[0]))
     try:
-        config_file = os.environ['DOMCHOP_PYMOL_CONFIG_FILE']
+        config_file = os.envion['DOMCHOP_PYMOL_CONFIG_FILE']
     except:
-        config_file = (bindir + '/' + 'config.ini')
+        try:
+            config_file = (bindir + '/' + 'config.ini')
+        except:
+            print_err("couldn't find the config")
     config.read(config_file) #read config file
     the_string = form.getvalue('chopping')
     if len(the_string) < 5: #check string validity
