@@ -46,8 +46,12 @@ try:
         '[238, 130, 238]']
 
     ###TAKE INPUTS
-
-    config.read(bindir + '/' + 'config.ini') #read config file
+    bindir = os.path.abspath(os.path.dirname(sys.argv[0]))
+    try:
+        config_file = os.environ['DOMCHOP_PYMOL_CONFIG_FILE']
+    except:
+        config_file = (bindir + '/' + 'config.ini')
+    config.read(config_file) #read config file
     the_string = form.getvalue('chopping')
     if len(the_string) < 5: #check string validity
         print_err("String is too short!")
@@ -55,7 +59,6 @@ try:
     is_pdb = config['DEFAULT']['is_pdb']
 
     ###HANDLE THE INPUTS
-
 
     #creates different regexes
     pdb_id_wholeRegex = re.compile(r'\d\w{3}')
