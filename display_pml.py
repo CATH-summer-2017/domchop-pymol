@@ -9,6 +9,7 @@ import sys
 from random import randrange
 
 #####IMPORTANT PREAPARATION
+##function for printing out an error message
 def print_err(content):
     print("Content-type: text/plain\n")
     print("This script has encountered a problem:\n")
@@ -17,7 +18,8 @@ def print_err(content):
     print(traceback.format_exc())
     sys.exit()
 
-def print_output(content, trcb):
+##function for debugging and printing out the output neatly
+def print_output(content, trcb): #arguments are for more text and true for traceback/else for no traceback
     print("Content-type: text/plain\n")
     print("script produced the following output (this would be printed into pml)")
     print(content)
@@ -30,9 +32,9 @@ def print_output(content, trcb):
         print("you didnt ask for traceback")
 
 
-bindir = os.path.abspath(os.path.dirname(sys.argv[0]))
-config = configparser.ConfigParser()
-form = cgi.FieldStorage()
+bindir = os.path.abspath(os.path.dirname(sys.argv[0])) #check dir of process
+config = configparser.ConfigParser() #config setup
+form = cgi.FieldStorage() #cgi setup
 norm_colours = [ #colours from CATH
     '[0, 0, 255]',
     '[255, 0, 0]',
@@ -60,26 +62,29 @@ norm_colours = [ #colours from CATH
 
 #####TAKE THE INPUTS
 
-try:
-    try:
+try: #try to find the config file
+    try: #look for it in the env variables
         config_file = os.environ['DOMCHOP_PYMOL_CONFIG_FILE']
-    except:
+    except: #look for it in the folder
         config_file = bindir + '/' + 'config.ini'
 except:
     print_err("No config file found in envir or in the folder")
 
-config.read(config_file)
-try:
+config.read(config_file) #read the config file
+
+try: #try to get the string from cgi form
     the_string = form.getvalue('chopping')
 except:
     print_err("There was an issue with getting the chopping string!")
+
 if len(the_string) < 5: #check string validity
     print_err("String is too short!")
+
 try:
-    if bindir ==  'location in CATH':
+    if bindir ==  'location in CATH': #check if we are in CATH
         pdb_dir = config['CATH']['pdb_dir']
         is_pdb = config['CATH']['pdb_dir']
-    elif bindir ==  '/srv/www/cgi-bin':
+    elif bindir ==  '/srv/www/cgi-bin': #if not in CATH then default options
         pdb_dir = config['DEFAULT']['pdb_dir']
         is_pdb = config['DEFAULT']['is_pdb']
     else:
@@ -100,71 +105,6 @@ pdb_id_chain = pdb_id_wholeRegex.search(the_string).group() + (pdb_chainRegex.se
 domains = whole_domainRegex.findall(the_string)
 fragments = fragmentRegex.findall(the_string)
 
-
-###IMPORTANT PREP
-def print_err(content):
-    print("Content-type: text/plain\n")
-    print("The script encountered the following problem:\n")
-    print(content)
-    sys.exit()
-bindir = os.path.abspath(os.path.dirname(sys.argv[0])) #FIND ABSPATH FOR THE PROCESS
-config = configparser.ConfigParser()
-form = cgi.FieldStorage()
-norm_colours = [ #colours from CATH
-    '[0, 0, 255]',
-    '[255, 0, 0]',
-    '[0, 255, 0]',
-    '[255, 255, 0]',
-    '[255, 100, 117]',
-    '[127, 127, 127]',
-    '[159, 31, 239]',
-    '[174, 213, 255]',
-    '[139, 239, 139]',
-    '[255, 164, 0]',
-    '[0, 255, 255]',
-    '[174, 117, 88]',
-    '[45, 138, 86]',
-    '[255, 0, 100]',
-    '[255, 0, 255]',
-    '[255, 171, 186]',
-    '[246, 246, 117]',
-    '[255, 156, 0]',
-    '[152, 255, 179]',
-    '[255, 69, 0]',
-    '[0, 250, 109]',
-    '[58, 144, 255]',
-    '[238, 130, 238]']
-
-###TAKE INPUTS
-bindir = os.path.abspath(os.path.dirname(sys.argv[0]))
-try:
-    config_file = os.envrion['DOMCHOP_PYMOL_CONFIG_FILE']
-except:
-    try:
-        config_file = (bindir + '/' + 'config.ini')
-    except:
-        print_err("couldn't find the config")
-config.read(config_file) #read config file
-the_string = form.getvalue('chopping')
-if len(the_string) < 5: #check string validity
-    print_err("String is too short!")
-pdb_dir = config['DEFAULT']['pdb_dir']
-is_pdb = config['DEFAULT']['is_pdb']
-
-###HANDLE THE INPUTS
-
-#creates different regexes
-pdb_id_wholeRegex = re.compile(r'\d\w{3}')
-pdb_chainRegex = re.compile(r'\W\w\W')
-whole_domainRegex = re.compile(r'D\d+-\d+\S*')
-fragmentRegex = re.compile(r'F\d{1,10}-\d{1,10}')
-coordinatesRegex = re.compile(r'\d+-\d+')
-
-#creates variables from regexes
-pdb_id_chain = pdb_id_wholeRegex.search(the_string).group() + (pdb_chainRegex.search(the_string).group())[1]
-domains = whole_domainRegex.findall(the_string)
-fragments = fragmentRegex.findall(the_string)
-#returns a dictionary of domains and respective coordinates
 
 def fetch_domains(list_of_strings):
     dict_domains = {}
