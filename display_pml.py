@@ -194,7 +194,7 @@ def create_pymol(): #compiles data into the pml file
     pymol_script.write("hide all\nshow cartoon, !the_rest\nshow surface, !the_rest\nset transparency, 0.4\n") #only chain with surface
     pymol_script.write("zoom !the_rest\norigin !the_rest\nscene F2, store\n\n") #only chain with surface
     pymol_script.write("hide all\nshow surface, all\nzoom all\norigin all\nscene F6, store\n\n")
-    pymol_script.write("hide all\nshow cartoon, !the_rest\norigin !the_rest\nzoom !the_rest\nlabel n. n and !the_rest, resi\nscene F5, store\n\n") #show with labels
+    pymol_script.write("hide all\nshow cartoon, !the_rest\norigin !the_rest\nzoom !the_rest\nlabel n. N and !the_rest, resi\nscene F5, store\n\n") #show with labels
     pymol_script.write("hide all\nshow cartoon, !the_rest\n") #only chain in cartoon, main view
     pymol_script.write("zoom !the_rest\norigin !the_rest\nscene F1, store\n\n") #only chain in cartoon, main view
     pymol_script.write('cmd.wizard("message", "Please us F1-F6 to switch between different scenes")') #message
