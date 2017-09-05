@@ -33,7 +33,6 @@ def print_output(content, trcb): #arguments are for more text and true for trace
     else:
         print("you didnt ask for traceback")
 
-
 bindir = os.path.abspath(os.path.dirname(sys.argv[0])) #checks where process is running
 config = configparser.ConfigParser() #config setup
 form = cgi.FieldStorage() #cgi setup
@@ -68,7 +67,7 @@ try: #try to find the config file
     try: #look for it in the env variables
         config_file = os.environ['DOMCHOP_PYMOL_CONFIG_FILE']
     except: #look for it in the folder
-        config_file = bindir + '/' + 'config.ini'
+        config_file = bndir + '/' + 'config.ini'
 except:
     print_err("No config file found in envir or in the folder")
 
