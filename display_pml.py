@@ -173,9 +173,12 @@ def print_info():
     print(fetch_fragments(fragments))
 def create_pymol(): #compiles data into the pml file
     pymol_script = tempfile.TemporaryFile(mode='w+t') #creates a temporal file with the chopping
-    pymol_script.write("Content-type: text/x-pymol\n")
+    pymol_script.write("Content-type: text/x-pymol\n") #header for CGI
     pymol_script.write("Content-Disposition: attachement; filename=" + pdb_id_chain + "_chopping" + str(randrange(10000, 99999, 1))+".pml\n")
-    pdb_file = open(pdb_dir + pdb_id_chain[0:4] + is_pdb, 'r') #opens a pdb file for the protein
+    try:
+        pdb_file = open(pdb_dir + pdb_id_chain[0:4] + is_pdb, 'r') #opens a pdb file for the protein
+    except:
+        print_err("PDB file not found")
     set_colours(pymol_script)
     fetch_pdb(pdb_file, pdb_id_chain[0:4], pymol_script)
     pymol_script.write("\ncolour White, all\n")
