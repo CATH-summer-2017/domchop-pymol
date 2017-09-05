@@ -1,4 +1,4 @@
-#!/usr/bin/python3
+#!/usr/local/bin/python3
 import re
 import cgi
 import tempfile
@@ -67,7 +67,7 @@ try: #try to find the config file
     try: #look for it in the env variables
         config_file = os.environ['DOMCHOP_PYMOL_CONFIG_FILE']
     except: #look for it in the folder
-        config_file = bndir + '/' + 'config.ini'
+        config_file = bindir + '/' + 'config.ini'
 except:
     print_err("No config file found in envir or in the folder")
 
