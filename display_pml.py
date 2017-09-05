@@ -9,6 +9,7 @@ import sys
 from random import randrange
 
 #####IMPORTANT PREAPARATION
+
 ##function for printing out an error message
 def print_err(content):
     print("Content-type: text/plain\n")
@@ -19,6 +20,7 @@ def print_err(content):
     sys.exit()
 
 ##function for debugging and printing out the output neatly
+
 def print_output(content, trcb): #arguments are for more text and true for traceback/else for no traceback
     print("Content-type: text/plain\n")
     print("script produced the following output (this would be printed into pml)")
