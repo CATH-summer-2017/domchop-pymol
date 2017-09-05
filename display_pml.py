@@ -34,7 +34,7 @@ def print_output(content, trcb): #arguments are for more text and true for trace
         print("you didnt ask for traceback")
 
 
-bindir = os.path.abspath(os.path.dirname(sys.argv[0])) #check dir of process
+bindir = os.path.abspath(os.path.dirname(sys.argv[0])) #checks where process is running
 config = configparser.ConfigParser() #config setup
 form = cgi.FieldStorage() #cgi setup
 norm_colours = [ #colours from CATH
@@ -83,16 +83,16 @@ if len(the_string) < 5: #check string validity
     print_err("String is too short!")
 
 try:
-    if bindir ==  'location in CATH': #check if we are in CATH
+    if bindir == 'location in CATH': #check if we are in CATH
         pdb_dir = config['CATH']['pdb_dir']
         is_pdb = config['CATH']['pdb_dir']
-    elif bindir ==  '/srv/www/cgi-bin': #if not in CATH then default options
+    elif bindir == '/srv/www/cgi-bin': #if not in CATH then default options
         pdb_dir = config['DEFAULT']['pdb_dir']
         is_pdb = config['DEFAULT']['is_pdb']
     else:
         print_err("config.ini is not found!")
 except:
-    print_err("Script encountered an issue!")
+    print_err("Script couldn't find the config file")
 
 #####HANDLE THE INPUTS
 
@@ -107,6 +107,7 @@ pdb_id_chain = pdb_id_wholeRegex.search(the_string).group() + (pdb_chainRegex.se
 domains = whole_domainRegex.findall(the_string)
 fragments = fragmentRegex.findall(the_string)
 
+#####CREATE FUNCTIONS FOR LATER USE
 
 def fetch_domains(list_of_strings):
     dict_domains = {}
@@ -116,22 +117,26 @@ def fetch_domains(list_of_strings):
         dict_domains[pdb_id_chain + str(count).zfill(2)] = list_of_domains
         count += 1
     return dict_domains
+
 #returns a list of fragments
 def fetch_fragments(list_of_fragments):
     fragment_list = []
     for fragment in list_of_fragments:
         fragment_list.append(coordinatesRegex.search(fragment).group())
     return fragment_list
+
 #puts colours from CATH into pml
 def set_colours(pml):
     for colour in norm_colours:
         pml.write("\nset_colour dom" + str(norm_colours.index(colour) + 1) + ", " + colour)
+
 #puts pdb info into the pml file
 def fetch_pdb(pdb, pdb_id, pml):#
     pml.write('\ncmd.read_pdbstr("""\\' + '\n')
     for line in pdb: #takes each line of pdb and adds it to the pml with a backslash at the end
         pml.write(line.rstrip("\n") + "\\\n")
     pml.write('""", "' + pdb_id + '")\n\n')
+
 #creates selection of each domain in pml
 def add_domains(pml, source_of_domains):
     count = 1
@@ -146,6 +151,7 @@ def add_domains(pml, source_of_domains):
             pml.write(" chain " + pdb_id_chain[-1] + " and resi " + coordin + " +")
         count += 1
         pml.write("\n")
+
 #puts fragment selection in the pml
 def add_fragments(pml, source_of_fragments):
     if len(fetch_fragments(source_of_fragments)) == 0:
@@ -156,6 +162,7 @@ def add_fragments(pml, source_of_fragments):
             pml.write("chain " + pdb_id_chain[-1] + " & " + "resi " + fragment + "\n")
             break
         pml.write("chain " + pdb_id_chain[-1] + " & " + "resi " + str(fragment) + " + ")
+
 #colours the domains according to the chopping
 def colour_domains(pml, source_of_domains):
     number_of_doms = len(fetch_domains(source_of_domains))
@@ -163,6 +170,7 @@ def colour_domains(pml, source_of_domains):
     for domain in range(number_of_doms):
         pml.write("colour dom" + str(count) + ", " + pdb_id_chain + str(count).zfill(2) + "\n")
         count += 1
+
 #gets info about the chopped chain
 def print_info():
     print("Chain ID = " + pdb_id_chain)
@@ -171,6 +179,7 @@ def print_info():
     print(fetch_domains(domains))
     print("Fragments list: ")
     print(fetch_fragments(fragments))
+
 def create_pymol(): #compiles data into the pml file
     pymol_script = tempfile.TemporaryFile(mode='w+t') #creates a temporal file with the chopping
     pymol_script.write("Content-type: text/x-pymol\n") #header for CGI
