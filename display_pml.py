@@ -194,7 +194,7 @@ def create_pymol(): #compiles data into the pml file
     pymol_script.write("\nhide all\ndeselect\ndelete sele\n\n") #creates blank screen
     pymol_script.write("set fog_start, 0\nset depth_cue, 0\n") #visual effects
     pymol_script.write("set label_size, 12\nset label_position,(1.5,1.5,1.5)\nset label_color, gray70\n") #comnfig the labeel size, colour and location
-    pymol_script.write("hide all\nshow surface, all\nshow cartoon, !the_rest\nset transparency, 0.4\n") #all of protein with surface
+    pymol_script.write("hide all\nshow surface, all\nshow cartoon, !the_rest\nshow ribbon the_rest\nset transparency, 0.4\n") #all of protein with surface
     pymol_script.write("zoom all\norigin all\nscene F4, store\n\n") #all of protein with surface
     pymol_script.write("hide all\nshow cartoon, !the_rest\nshow ribbon, the_rest\n")#all of protein in cartoon
     pymol_script.write("zoom all\norigin all\nscene F3, store\n\n") #all of protein in cartoon
