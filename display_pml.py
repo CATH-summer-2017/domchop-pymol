@@ -82,16 +82,10 @@ if len(the_string) < 5: #check string validity
     print_err("String is too short!")
 
 try:
-    if bindir == 'location in CATH': #check if we are in CATH
-        pdb_dir = config['CATH']['pdb_dir']
-        is_pdb = config['CATH']['pdb_dir']
-    elif bindir == '/srv/www/cgi-bin': #if not in CATH then default options
-        pdb_dir = config['DEFAULT']['pdb_dir']
-        is_pdb = config['DEFAULT']['is_pdb']
-    else:
-        print_err("config.ini is not found!")
+    pdb_dir = config['DEFAULT']['pdb_dir']
+    is_pdb = config['DEFAULT']['is_pdb']
 except:
-    print_err("Script couldn't find the config file")
+    print_err("The config file has no proper settings")
 
 #####HANDLE THE INPUTS
 
